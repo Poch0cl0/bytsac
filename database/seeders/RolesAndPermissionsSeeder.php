@@ -26,6 +26,11 @@ class RolesAndPermissionsSeeder extends Seeder
             'create plans',
             'edit plans',
             'delete plans',
+            'view subscriptions',
+            'create subscriptions',
+            'edit subscriptions',
+            'delete subscriptions',
+            'renew subscriptions',
         ];
 
         foreach ($permissions as $permission) {
@@ -38,22 +43,47 @@ class RolesAndPermissionsSeeder extends Seeder
             'create clients',
             'edit clients',
             'view plans',
+            'view subscriptions',
+            'create subscriptions',
+            'edit subscriptions',
+            'renew subscriptions',
         ]);
         $clientRole->syncPermissions([
             'view plans',
+            'view subscriptions',
         ]);
 
+        // Usuario Administrador
         $admin = User::firstOrCreate(
             ['email' => 'admin@bytsac.pe'],
             [
                 'name' => 'Administrador BYTSAC',
-                // Change this password in production.
                 'password' => bcrypt('Admin@2026!'),
                 'tenant_id' => 1,
             ]
-        );  
-
+        );
         $admin->syncRoles([$adminRole]);
+
+        // Usuario Comercial
+        $commercial = User::firstOrCreate(
+            ['email' => 'comercial@bytsac.pe'],
+            [
+                'name' => 'Usuario Comercial',
+                'password' => bcrypt('Comercial@2026!'),
+                'tenant_id' => 1,
+            ]
+        );
+        $commercial->syncRoles([$commercialRole]);
+
+        // Usuario Cliente
+        $client = User::firstOrCreate(
+            ['email' => 'cliente@bytsac.pe'],
+            [
+                'name' => 'Usuario Cliente',
+                'password' => bcrypt('Cliente@2026!'),
+                'tenant_id' => 1,
+            ]
+        );
+        $client->syncRoles([$clientRole]);
     }
 }
-

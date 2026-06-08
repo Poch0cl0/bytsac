@@ -5,7 +5,21 @@ namespace App\Models;
 use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property int $tenant_id
+ * @property int $client_id
+ * @property int $plan_id
+ * @property int|null $user_id
+ * @property Carbon $fecha_inicio
+ * @property Carbon $fecha_fin
+ * @property string $estado
+ * @property bool $renovacion_automatica
+ * @property-read int $dias_restantes
+ */
 class Subscription extends Model
 {
     use BelongsToTenant;
@@ -19,6 +33,11 @@ class Subscription extends Model
         'estado',
         'renovacion_automatica',
         'tenant_id',
+    ];
+
+    // CORRECCIÓN: Permite que 'dias_restantes' se serialice automáticamente en los JSON de la API
+    protected $appends = [
+        'dias_restantes'
     ];
 
     protected function casts(): array
@@ -55,5 +74,15 @@ class Subscription extends Model
     {
         return $query->whereIn('estado', ['activo', 'por_vencer'])
             ->where('fecha_fin', '<', now()->subDay());
+    }
+
+    /**
+     * Accessor para calcular los días restantes hasta la fecha_fin.
+     */
+    protected function diasRestantes(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => max(0, now()->diffInDays($this->fecha_fin, false))
+        );
     }
 }

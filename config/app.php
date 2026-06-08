@@ -65,8 +65,8 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
-
+    // config/app.php
+    'timezone' => 'America/Lima', // O la zona horaria de servidores comerciales
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration
