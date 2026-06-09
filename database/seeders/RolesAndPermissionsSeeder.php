@@ -50,7 +50,6 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
         $clientRole->syncPermissions([
             'view plans',
-            'view subscriptions',
         ]);
 
         // Usuario Administrador

@@ -20,7 +20,8 @@ class SubscriptionController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $this->authorize('view subscriptions', Subscription::class);
+        // Vinculación con Policy: Llama a viewAny()
+        $this->authorize('viewAny', Subscription::class);
         $tenantId = auth()->user()->tenant_id;
 
         $query = Subscription::with(['client:id,razon_social', 'plan:id,nombre'])
@@ -52,7 +53,8 @@ class SubscriptionController extends Controller
      */
     public function store(StoreSubscriptionRequest $request): JsonResponse
     {
-        $this->authorize('create subscriptions', Subscription::class);
+        // Vinculación con Policy: Llama a create()
+        $this->authorize('create', Subscription::class);
 
         return DB::transaction(function () use ($request) {
             $data = $request->validated();
@@ -80,7 +82,8 @@ class SubscriptionController extends Controller
      */
     public function show(Subscription $subscription): JsonResponse
     {
-        $this->authorize('view subscriptions', $subscription);
+        // Vinculación con Policy: Llama a view()
+        $this->authorize('view', $subscription);
         $this->ensureTenantAccess($subscription);
 
         $subscription->load(['client', 'plan']);
@@ -92,7 +95,8 @@ class SubscriptionController extends Controller
      */
     public function toggleAutoRenew(Subscription $subscription): JsonResponse
     {
-        $this->authorize('edit subscriptions', $subscription);
+        // Vinculación con Policy: Usa la regla 'update' porque altera el registro
+        $this->authorize('update', $subscription);
         $this->ensureTenantAccess($subscription);
 
         try {
@@ -113,7 +117,8 @@ class SubscriptionController extends Controller
      */
     public function renew(Subscription $subscription): JsonResponse
     {
-        $this->authorize('renew subscriptions', $subscription);
+        // Vinculación con Policy: Llama a renew()
+        $this->authorize('renew', $subscription);
         $this->ensureTenantAccess($subscription);
 
         return DB::transaction(function () use ($subscription) {
@@ -139,7 +144,8 @@ class SubscriptionController extends Controller
      */
     public function cancel(Subscription $subscription): JsonResponse
     {
-        $this->authorize('edit subscriptions', $subscription);
+        // Vinculación con Policy: Usa la regla 'update' porque altera el registro
+        $this->authorize('update', $subscription);
         $this->ensureTenantAccess($subscription);
 
         try {
@@ -155,9 +161,12 @@ class SubscriptionController extends Controller
             return response()->json(['message' => 'Error al cancelar la suscripción', 'error' => $e->getMessage()], 500);
         }
     }
-    public function destroy(Subscription $subscription): JsonResponse
+    public function destroy($id): JsonResponse
     {
-        // 1. Ejecuta la validación de la Policy (Spatie + Tenant ID check)
+        // Busca el registro sin el TenantScope automático
+        $subscription = Subscription::withoutGlobalScopes()->findOrFail($id);
+        
+        // Vinculación con Policy: Llama a delete()
         $this->authorize('delete', $subscription);
 
         try {
