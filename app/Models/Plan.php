@@ -17,6 +17,7 @@ class Plan extends Model
         'descripcion',
         'precio_mensual',
         'precio_anual',
+        'duracion_dias',
         'control_ventas_stock',
         'max_usuarios',
         'nivel_reportes',
@@ -30,6 +31,7 @@ class Plan extends Model
             'activo' => 'boolean',
             'precio_mensual' => 'decimal:2',
             'precio_anual' => 'decimal:2',
+            'duracion_dias' => 'integer',
         ];
     }
 
