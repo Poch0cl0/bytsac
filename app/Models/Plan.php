@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\ActivityModule;
+use App\Traits\Auditable;
 use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Plan extends Model
 {
-    use BelongsToTenant, HasFactory;
+    use Auditable, BelongsToTenant, HasFactory;
 
     protected $fillable = [
         'tenant_id',
@@ -38,6 +40,23 @@ class Plan extends Model
     public function subscriptions(): HasMany
     {
         return $this->hasMany(Subscription::class);
+    }
+
+    public function getAuditModule(): string
+    {
+        return ActivityModule::Plans->value;
+    }
+
+    public function getAuditDescription(string $action): string
+    {
+        $nombre = $this->nombre ?? 'sin nombre';
+
+        return match ($action) {
+            'created' => "Plan \"{$nombre}\" creado",
+            'updated' => "Plan \"{$nombre}\" actualizado",
+            'deleted' => "Plan \"{$nombre}\" eliminado",
+            default => "Plan \"{$nombre}\": {$action}",
+        };
     }
 }
 

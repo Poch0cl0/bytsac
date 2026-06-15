@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\ActivityModule;
+use App\Traits\Auditable;
 use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -23,7 +25,7 @@ use Illuminate\Support\Carbon;
  */
 class Subscription extends Model
 {
-    use BelongsToTenant, HasFactory;
+    use Auditable, BelongsToTenant, HasFactory;
 
     protected $fillable = [
         'client_id',
@@ -85,5 +87,20 @@ class Subscription extends Model
         return Attribute::make(
             get: fn () => max(0, now()->diffInDays($this->fecha_fin, false))
         );
+    }
+
+    public function getAuditModule(): string
+    {
+        return ActivityModule::Subscriptions->value;
+    }
+
+    public function getAuditDescription(string $action): string
+    {
+        return match ($action) {
+            'created' => "Suscripción #{$this->getKey()} creada",
+            'updated' => "Suscripción #{$this->getKey()} actualizada",
+            'deleted' => "Suscripción #{$this->getKey()} eliminada",
+            default => "Suscripción #{$this->getKey()}: {$action}",
+        };
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\ActivityLogController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Controllers\Api\ClientController;
@@ -50,5 +51,11 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Eliminación (Solo Admin)
     Route::delete('/subscriptions/{subscription}', [SubscriptionController::class, 'destroy'])->middleware('can:delete subscriptions');
+
+    // ==========================================
+    // MÓDULO: AUDITORÍA / ACTIVITY LOGS
+    // ==========================================
+    Route::get('/activity-logs', [ActivityLogController::class, 'index'])->middleware('can:view activity logs');
+    Route::get('/activity-logs/{activityLog}', [ActivityLogController::class, 'show'])->middleware('can:view activity logs');
 
 });

@@ -60,4 +60,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Plan::class, 'tenant_id', 'tenant_id');
     }
+
+    public function activityLogs(): HasMany
+    {
+        return $this->hasMany(ActivityLog::class);
+    }
 }

@@ -2,25 +2,31 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\ActivityAction;
+use App\Enums\ActivityModule;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreSubscriptionRequest;
+use App\Models\Client;
+use App\Models\Plan;
 use App\Models\Subscription;
-use App\Models\Plan;   
-use App\Models\Client; 
+use App\Services\ActivityLogService;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\QueryException;
 use Throwable;
 
 class SubscriptionController extends Controller
 {
+    public function __construct(
+        private readonly ActivityLogService $activityLogService,
+    ) {}
+
     /**
      * Listar suscripciones con filtros y paginación.
      */
     public function index(Request $request): JsonResponse
     {
-        // Vinculación con Policy: Llama a viewAny()
         $this->authorize('viewAny', Subscription::class);
         $tenantId = auth()->user()->tenant_id;
 
@@ -30,15 +36,15 @@ class SubscriptionController extends Controller
         if ($request->filled('estado')) {
             $query->where('estado', '=', $request->input('estado'));
         }
-        
+
         if ($request->filled('plan_id')) {
             $query->where('plan_id', '=', $request->input('plan_id'));
         }
-        
+
         if ($request->filled('date_from')) {
             $query->where('fecha_fin', '>=', $request->input('date_from'));
         }
-        
+
         if ($request->filled('date_to')) {
             $query->where('fecha_fin', '<=', $request->input('date_to'));
         }
@@ -53,20 +59,17 @@ class SubscriptionController extends Controller
      */
     public function store(StoreSubscriptionRequest $request): JsonResponse
     {
-        // Vinculación con Policy: Llama a create()
         $this->authorize('create', Subscription::class);
 
         return DB::transaction(function () use ($request) {
             $data = $request->validated();
             $tenantId = auth()->user()->tenant_id;
 
-            // Buscar el plan para obtener los días de duración
             $plan = Plan::where('tenant_id', $tenantId)->findOrFail($data['plan_id']);
 
-            // Automatización de auditoría y cronología
             $data['tenant_id'] = $tenantId;
             $data['user_id'] = auth()->id();
-            $data['fecha_inicio'] = now()->startOfDay(); 
+            $data['fecha_inicio'] = now()->startOfDay();
             $data['fecha_fin'] = now()->startOfDay()->addDays($plan->duracion_dias);
             $data['estado'] = 'activo';
 
@@ -78,15 +81,15 @@ class SubscriptionController extends Controller
     }
 
     /**
-     * NVO ENDPOINT: Ver el detalle de una suscripción específica.
+     * Ver el detalle de una suscripción específica.
      */
     public function show(Subscription $subscription): JsonResponse
     {
-        // Vinculación con Policy: Llama a view()
         $this->authorize('view', $subscription);
         $this->ensureTenantAccess($subscription);
 
         $subscription->load(['client', 'plan']);
+
         return response()->json($subscription);
     }
 
@@ -95,17 +98,30 @@ class SubscriptionController extends Controller
      */
     public function toggleAutoRenew(Subscription $subscription): JsonResponse
     {
-        // Vinculación con Policy: Usa la regla 'update' porque altera el registro
         $this->authorize('update', $subscription);
         $this->ensureTenantAccess($subscription);
 
         try {
-            $subscription->renovacion_automatica = !$subscription->renovacion_automatica;
-            $subscription->save();
+            $oldValue = $subscription->renovacion_automatica;
+            $newValue = ! $oldValue;
+
+            $subscription->disableAuditing();
+            $subscription->renovacion_automatica = $newValue;
+            $subscription->saveQuietly();
+
+            $estado = $newValue ? 'activada' : 'desactivada';
+            $this->activityLogService->log(
+                action: ActivityAction::ToggleAutoRenew->value,
+                module: ActivityModule::Subscriptions->value,
+                description: "Renovación automática {$estado} en suscripción #{$subscription->id}",
+                subject: $subscription,
+                old: ['renovacion_automatica' => $oldValue],
+                new: ['renovacion_automatica' => $newValue],
+            );
 
             return response()->json([
                 'message' => 'Renovación automática actualizada correctamente.',
-                'renovacion_automatica' => $subscription->renovacion_automatica
+                'renovacion_automatica' => $newValue,
             ]);
         } catch (Throwable $e) {
             return response()->json(['message' => 'Error inesperado', 'error' => $e->getMessage()], 500);
@@ -117,82 +133,108 @@ class SubscriptionController extends Controller
      */
     public function renew(Subscription $subscription): JsonResponse
     {
-        // Vinculación con Policy: Llama a renew()
         $this->authorize('renew', $subscription);
         $this->ensureTenantAccess($subscription);
 
         return DB::transaction(function () use ($subscription) {
-            // Bloqueo de fila para evitar que dos clicks rápidos dupliquen los días
-            $subscription->lockForUpdate(); 
+            $subscription->lockForUpdate();
+
+            $oldValues = [
+                'fecha_fin' => $subscription->fecha_fin?->toDateString(),
+                'estado' => $subscription->estado,
+            ];
 
             $daysToAdd = $subscription->plan->duracion_dias ?? 30;
             $baseDate = $subscription->fecha_fin->isPast() ? now() : $subscription->fecha_fin;
-            
+
+            $subscription->disableAuditing();
             $subscription->fecha_fin = $baseDate->copy()->addDays($daysToAdd);
-            $subscription->estado = 'activo'; 
-            $subscription->save();
+            $subscription->estado = 'activo';
+            $subscription->saveQuietly();
+
+            $this->activityLogService->log(
+                action: ActivityAction::Renewed->value,
+                module: ActivityModule::Subscriptions->value,
+                description: "Suscripción #{$subscription->id} renovada hasta {$subscription->fecha_fin->toDateString()}",
+                subject: $subscription,
+                old: $oldValues,
+                new: [
+                    'fecha_fin' => $subscription->fecha_fin->toDateString(),
+                    'estado' => $subscription->estado,
+                ],
+            );
 
             return response()->json([
                 'message' => 'Suscripción renovada exitosamente.',
-                'subscription' => $subscription->fresh(['client', 'plan'])
+                'subscription' => $subscription->fresh(['client', 'plan']),
             ]);
         });
     }
 
     /**
-     * NVO ENDPOINT: Cancelar inmediatamente una suscripción activa.
+     * Cancelar inmediatamente una suscripción activa.
      */
     public function cancel(Subscription $subscription): JsonResponse
     {
-        // Vinculación con Policy: Usa la regla 'update' porque altera el registro
         $this->authorize('update', $subscription);
         $this->ensureTenantAccess($subscription);
 
         try {
+            $oldValues = [
+                'estado' => $subscription->estado,
+                'renovacion_automatica' => $subscription->renovacion_automatica,
+            ];
+
+            $subscription->disableAuditing();
             $subscription->estado = 'cancelado';
             $subscription->renovacion_automatica = false;
-            $subscription->save();
+            $subscription->saveQuietly();
+
+            $this->activityLogService->log(
+                action: ActivityAction::Cancelled->value,
+                module: ActivityModule::Subscriptions->value,
+                description: "Suscripción #{$subscription->id} cancelada",
+                subject: $subscription,
+                old: $oldValues,
+                new: [
+                    'estado' => 'cancelado',
+                    'renovacion_automatica' => false,
+                ],
+            );
 
             return response()->json([
                 'message' => 'Suscripción cancelada de manera inmediata.',
-                'subscription' => $subscription->fresh(['client', 'plan'])
+                'subscription' => $subscription->fresh(['client', 'plan']),
             ]);
         } catch (Throwable $e) {
             return response()->json(['message' => 'Error al cancelar la suscripción', 'error' => $e->getMessage()], 500);
         }
     }
+
     public function destroy($id): JsonResponse
     {
-        // Busca el registro sin el TenantScope automático
         $subscription = Subscription::withoutGlobalScopes()->findOrFail($id);
-        
-        // Vinculación con Policy: Llama a delete()
+
         $this->authorize('delete', $subscription);
 
         try {
-        // 2. Doble candado de seguridad Multi-Tenant en el controlador
             if ($subscription->tenant_id !== auth()->user()->tenant_id) {
                 return response()->json([
-                    'message' => 'No autorizado. Este registro pertenece a otra organización.'
-            ], 403);
-        }
+                    'message' => 'No autorizado. Este registro pertenece a otra organización.',
+                ], 403);
+            }
 
-        // 3. Eliminación del registro
-        $subscription->delete();
+            $subscription->delete();
 
-        // 4. Respuesta estándar 204 No Content para eliminaciones exitosas
-        return response()->json(null, 204);
-
+            return response()->json(null, 204);
         } catch (Throwable $e) {
             return response()->json([
                 'message' => 'Unexpected error',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
+        }
     }
-}
-    /**
-     * Helper interno para encapsular la seguridad Multi-Tenant temporalmente.
-     */
+
     protected function ensureTenantAccess(Subscription $subscription): void
     {
         if ($subscription->tenant_id !== auth()->user()->tenant_id) {

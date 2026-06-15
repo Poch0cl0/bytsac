@@ -2,29 +2,52 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\ActivityAction;
+use App\Enums\ActivityModule;
 use App\Models\Subscription;
+use App\Services\ActivityLogService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 
 class UpdateSubscriptionStatus extends Command
 {
     protected $signature = 'subscriptions:update-status';
+
     protected $description = 'Actualiza el estado de las suscripciones (por_vencer, vencido, auto-renovación)';
 
-    public function handle(): int
+    public function handle(ActivityLogService $activityLogService): int
     {
         $this->info('Iniciando actualización de estados de suscripciones...');
         $now = Carbon::now()->startOfDay();
         $sevenDaysFromNow = $now->copy()->addDays(7)->endOfDay();
 
-        // 1. Marcar como 'por_vencer'
-        $expiringSoon = Subscription::where('estado', 'activo')
+        $expiringSoonSubscriptions = Subscription::where('estado', 'activo')
             ->whereBetween('fecha_fin', [$now, $sevenDaysFromNow])
-            ->update(['estado' => 'por_vencer']);
-        
-        $this->info("Suscripciones marcadas como 'por_vencer': {$expiringSoon}");
+            ->cursor();
 
-        // 2. Procesar suscripciones vencidas
+        $expiringSoonCount = 0;
+
+        foreach ($expiringSoonSubscriptions as $subscription) {
+            $oldEstado = $subscription->estado;
+
+            $subscription->disableAuditing();
+            $subscription->estado = 'por_vencer';
+            $subscription->saveQuietly();
+
+            $activityLogService->logAsSystem(
+                action: ActivityAction::SystemUpdate->value,
+                module: ActivityModule::System->value,
+                description: "Suscripción #{$subscription->id} marcada automáticamente como por_vencer",
+                subject: $subscription,
+                old: ['estado' => $oldEstado],
+                new: ['estado' => 'por_vencer'],
+            );
+
+            $expiringSoonCount++;
+        }
+
+        $this->info("Suscripciones marcadas como 'por_vencer': {$expiringSoonCount}");
+
         $expiredSubscriptions = Subscription::where('fecha_fin', '<', $now)
             ->whereIn('estado', ['activo', 'por_vencer'])
             ->with('plan')
@@ -35,20 +58,46 @@ class UpdateSubscriptionStatus extends Command
 
         foreach ($expiredSubscriptions as $subscription) {
             if ($subscription->renovacion_automatica) {
+                $oldValues = [
+                    'fecha_fin' => $subscription->fecha_fin?->toDateString(),
+                    'estado' => $subscription->estado,
+                ];
+
                 $daysToAdd = $subscription->plan->duracion_dias ?? 30;
-                
-                // El IDE ahora reconoce copy() y addDays() gracias al Docblock del modelo
+                $subscription->disableAuditing();
                 $subscription->fecha_fin = $subscription->fecha_fin->copy()->addDays($daysToAdd);
-                
-                // Usamos now()->addDays(7) para una comparación de Carbon limpia
                 $subscription->estado = $subscription->fecha_fin->lt(now()->addDays(7)) ? 'por_vencer' : 'activo';
-                $subscription->save();
-                
+                $subscription->saveQuietly();
+
+                $activityLogService->logAsSystem(
+                    action: ActivityAction::SystemUpdate->value,
+                    module: ActivityModule::System->value,
+                    description: "Suscripción #{$subscription->id} renovada automáticamente por el sistema",
+                    subject: $subscription,
+                    old: $oldValues,
+                    new: [
+                        'fecha_fin' => $subscription->fecha_fin->toDateString(),
+                        'estado' => $subscription->estado,
+                    ],
+                );
+
                 $renewedCount++;
             } else {
+                $oldEstado = $subscription->estado;
+
+                $subscription->disableAuditing();
                 $subscription->estado = 'vencido';
-                $subscription->save();
-                
+                $subscription->saveQuietly();
+
+                $activityLogService->logAsSystem(
+                    action: ActivityAction::SystemUpdate->value,
+                    module: ActivityModule::System->value,
+                    description: "Suscripción #{$subscription->id} marcada automáticamente como vencido",
+                    subject: $subscription,
+                    old: ['estado' => $oldEstado],
+                    new: ['estado' => 'vencido'],
+                );
+
                 $expiredCount++;
             }
         }
@@ -57,7 +106,6 @@ class UpdateSubscriptionStatus extends Command
         $this->info("Suscripciones marcadas como 'vencido': {$expiredCount}");
         $this->info('Proceso finalizado correctamente.');
 
-        // Retornar 0 es el estándar POSIX para "éxito" y evita advertencias de linters estrictos
-        return 0; 
+        return 0;
     }
 }

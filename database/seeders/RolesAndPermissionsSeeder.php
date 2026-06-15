@@ -31,6 +31,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'edit subscriptions',
             'delete subscriptions',
             'renew subscriptions',
+            'view activity logs',
         ];
 
         foreach ($permissions as $permission) {

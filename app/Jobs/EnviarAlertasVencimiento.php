@@ -2,10 +2,13 @@
 
 namespace App\Jobs;
 
+use App\Enums\ActivityAction;
+use App\Enums\ActivityModule;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Notifications\AlertaVencimiento;
 use App\Notifications\AvisoComercial;
+use App\Services\ActivityLogService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -16,14 +19,27 @@ class EnviarAlertasVencimiento implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function handle(): void
+    public function handle(ActivityLogService $activityLogService): void
     {
         $dias = (int) config('app.suscripcion_alerta_dias', 7);
 
         $proximas = Subscription::proximasAVencer($dias)->with(['client', 'plan'])->get();
 
         foreach ($proximas as $subscription) {
-            $subscription->update(['estado' => 'por_vencer']);
+            $oldEstado = $subscription->estado;
+
+            $subscription->disableAuditing();
+            $subscription->estado = 'por_vencer';
+            $subscription->saveQuietly();
+
+            $activityLogService->logAsSystem(
+                action: ActivityAction::SystemUpdate->value,
+                module: ActivityModule::System->value,
+                description: "Suscripción #{$subscription->id} marcada automáticamente como por_vencer",
+                subject: $subscription,
+                old: ['estado' => $oldEstado],
+                new: ['estado' => 'por_vencer'],
+            );
 
             if ($subscription->client->email) {
                 $subscription->client->notify(new AlertaVencimiento($subscription));
@@ -41,7 +57,20 @@ class EnviarAlertasVencimiento implements ShouldQueue
         $vencidas = Subscription::vencidas()->with(['client', 'plan'])->get();
 
         foreach ($vencidas as $subscription) {
-            $subscription->update(['estado' => 'expirado']);
+            $oldEstado = $subscription->estado;
+
+            $subscription->disableAuditing();
+            $subscription->estado = 'expirado';
+            $subscription->saveQuietly();
+
+            $activityLogService->logAsSystem(
+                action: ActivityAction::SystemUpdate->value,
+                module: ActivityModule::System->value,
+                description: "Suscripción #{$subscription->id} marcada automáticamente como expirado",
+                subject: $subscription,
+                old: ['estado' => $oldEstado],
+                new: ['estado' => 'expirado'],
+            );
         }
     }
 }
