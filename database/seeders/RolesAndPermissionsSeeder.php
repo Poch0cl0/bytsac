@@ -1,7 +1,5 @@
 <?php
-
 namespace Database\Seeders;
-
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
@@ -51,6 +49,7 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
         $clientRole->syncPermissions([
             'view plans',
+            'view subscriptions',
         ]);
 
         // Usuario Administrador
