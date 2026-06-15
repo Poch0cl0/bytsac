@@ -287,17 +287,23 @@ class SubscriptionControllerTest extends TestCase
         // El registro debe seguir intacto en la base de datos
         $this->assertDatabaseHas('subscriptions', ['id' => $subscription->id]);
     }
-    public function test_un_cliente_no_puede_listar_suscripciones(): void
+    public function test_un_cliente_puede_listar_suscripciones(): void
     {
         $clienteUsuario = User::factory()->create(['tenant_id' => 1]);
         $clienteUsuario->assignRole('cliente');
 
+        Subscription::factory()->create([
+            'tenant_id' => 1,
+            'client_id' => $this->client->id,
+            'plan_id' => $this->plan->id,
+        ]);
+
         $response = $this->actingAs($clienteUsuario, 'sanctum')
             ->getJson('/api/subscriptions');
 
-        $response->assertStatus(403);
+        $response->assertStatus(200)
+            ->assertJsonCount(1, 'data');
     }
-
     public function test_un_cliente_no_puede_modificar_ni_alternar_renovaciones(): void
     {
         $clienteUsuario = User::factory()->create(['tenant_id' => 1]);
