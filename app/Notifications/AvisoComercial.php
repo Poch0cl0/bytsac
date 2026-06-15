@@ -2,7 +2,6 @@
 
 namespace App\Notifications;
 
-use App\Mail\AvisoComercialMailable;
 use App\Models\Subscription;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
@@ -20,13 +19,7 @@ class AvisoComercial extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
-    }
-
-    public function toMail(object $notifiable): AvisoComercialMailable
-    {
-        return (new AvisoComercialMailable($this->subscription))
-            ->to($notifiable->email);
+        return ['database'];
     }
 
     public function toArray(object $notifiable): array
@@ -38,7 +31,9 @@ class AvisoComercial extends Notification
             'cliente' => $this->subscription->client->razon_social,
             'plan' => $this->subscription->plan->nombre,
             'fecha_fin' => $this->subscription->fecha_fin->format('Y-m-d'),
+            'dias_restantes' => $this->subscription->dias_restantes,
             'tipo' => 'aviso_comercial',
+            'mensaje' => "Alerta comercial: La suscripción de {$this->subscription->client->razon_social} al plan {$this->subscription->plan->nombre} vence el {$this->subscription->fecha_fin->format('d/m/Y')}. Contacta al cliente para renovación.",
         ];
     }
 }

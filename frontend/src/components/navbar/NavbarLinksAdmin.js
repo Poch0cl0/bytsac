@@ -1,6 +1,6 @@
-// Chakra Imports
 import {
   Avatar,
+  Badge,
   Button,
   Flex,
   Icon,
@@ -11,30 +11,35 @@ import {
   Text,
   useColorModeValue,
   useColorMode,
+  Box,
+  Divider,
+  Spinner,
 } from "@chakra-ui/react";
 
-// Custom Components
 import { ItemContent } from "components/menu/ItemContent";
 import { SearchBar } from "components/navbar/searchBar/SearchBar";
 import { SidebarResponsive } from "components/sidebar/Sidebar";
 
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
-// Icons
 import { MdNotificationsNone, MdInfoOutline } from "react-icons/md";
 import { IoMdMoon, IoMdSunny } from "react-icons/io";
 
 import routes from "routes";
-import api from "services/api";
+import api, { notificationApi } from "services/api";
+
+const TIPO_CONFIG = {
+  aviso_comercial: { color: "red", icon: "🔔" },
+  seguimiento: { color: "purple", icon: "📋" },
+};
 
 export default function HeaderLinks(props) {
   const { secondary } = props;
   const { colorMode, toggleColorMode } = useColorMode();
   const navigate = useNavigate();
 
-  // Chakra Color Mode
   const navbarIcon = useColorModeValue("gray.400", "white");
   const menuBg = useColorModeValue("white", "navy.800");
   const textColor = useColorModeValue("secondaryGray.900", "white");
@@ -45,23 +50,103 @@ export default function HeaderLinks(props) {
     "14px 17px 40px 4px rgba(112, 144, 176, 0.06)"
   );
 
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+
   const user = JSON.parse(localStorage.getItem("bytsac_user") || "null");
 
   const userName = user?.name || "Administrador BYTSAC";
   const userEmail = user?.email || "admin@bytsac.pe";
 
+  const fetchUnreadCount = useCallback(async () => {
+    try {
+      const { data } = await notificationApi.getUnreadCount();
+      setUnreadCount(data.unread_count);
+    } catch {
+      console.error("Error al obtener conteo de notificaciones");
+    }
+  }, []);
+
+  const fetchNotifications = useCallback(async (pageNum = 1) => {
+    setLoading(true);
+    try {
+      const { data } = await notificationApi.getAll(pageNum);
+      if (pageNum === 1) {
+        setNotifications(data.data);
+      } else {
+        setNotifications((prev) => [...prev, ...data.data]);
+      }
+      setHasMore(data.current_page < data.last_page);
+    } catch {
+      console.error("Error al obtener notificaciones");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchNotifications(1);
+    fetchUnreadCount();
+
+    const interval = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, [fetchNotifications, fetchUnreadCount]);
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await notificationApi.markAllAsRead();
+      setNotifications((prev) =>
+        prev.map((n) => ({ ...n, read_at: n.read_at || new Date().toISOString() }))
+      );
+      setUnreadCount(0);
+    } catch {
+      console.error("Error al marcar todas como leídas");
+    }
+  };
+
+  const handleMarkAsRead = async (id) => {
+    try {
+      await notificationApi.markAsRead(id);
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, read_at: new Date().toISOString() } : n))
+      );
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+    } catch {
+      console.error("Error al marcar notificación como leída");
+    }
+  };
+
+  const handleLoadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchNotifications(nextPage);
+  };
+
   const handleLogout = async () => {
     try {
       await api.post("/logout");
-    } catch (error) {
-      console.error("Error al cerrar sesión:", error);
+    } catch {
+      console.error("Error al cerrar sesión");
     } finally {
       localStorage.removeItem("bytsac_token");
       localStorage.removeItem("bytsac_user");
       localStorage.removeItem("bytsac_roles");
-
       navigate("/auth/sign-in");
     }
+  };
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("es-PE", {
+      day: "numeric",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   return (
@@ -88,9 +173,8 @@ export default function HeaderLinks(props) {
 
       <SidebarResponsive routes={routes} />
 
-      {/* Notificaciones */}
       <Menu>
-        <MenuButton p="0px">
+        <MenuButton p="0px" position="relative">
           <Icon
             mt="6px"
             as={MdNotificationsNone}
@@ -99,6 +183,23 @@ export default function HeaderLinks(props) {
             h="18px"
             me="10px"
           />
+          {unreadCount > 0 && (
+            <Badge
+              position="absolute"
+              top="-4px"
+              right="4px"
+              colorScheme="red"
+              borderRadius="full"
+              fontSize="10px"
+              w="18px"
+              h="18px"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </Badge>
+          )}
         </MenuButton>
 
         <MenuList
@@ -111,48 +212,124 @@ export default function HeaderLinks(props) {
           me={{ base: "30px", md: "unset" }}
           minW={{ base: "unset", md: "400px", xl: "450px" }}
           maxW={{ base: "360px", md: "unset" }}
+          maxH="460px"
+          overflowY="auto"
         >
-          <Flex w="100%" mb="20px">
+          <Flex w="100%" mb="15px" align="center">
             <Text fontSize="md" fontWeight="600" color={textColor}>
               Notificaciones
             </Text>
 
-            <Text
-              fontSize="sm"
-              fontWeight="500"
-              color={textColorBrand}
-              ms="auto"
-              cursor="pointer"
-            >
-              Marcar como leídas
-            </Text>
+            {unreadCount > 0 && (
+              <Text
+                fontSize="sm"
+                fontWeight="500"
+                color={textColorBrand}
+                ms="auto"
+                cursor="pointer"
+                onClick={handleMarkAllAsRead}
+              >
+                Marcar como leídas
+              </Text>
+            )}
           </Flex>
 
-          <Flex flexDirection="column">
-            <MenuItem
-              _hover={{ bg: "none" }}
-              _focus={{ bg: "none" }}
-              px="0"
-              borderRadius="8px"
-              mb="10px"
-            >
-              <ItemContent info="No hay alertas comerciales pendientes." />
-            </MenuItem>
+          <Divider mb="15px" />
 
-            <MenuItem
-              _hover={{ bg: "none" }}
-              _focus={{ bg: "none" }}
-              px="0"
-              borderRadius="8px"
-              mb="10px"
-            >
-              <ItemContent info="Las suscripciones activas se están monitoreando correctamente." />
-            </MenuItem>
-          </Flex>
+          {loading && notifications.length === 0 ? (
+            <Flex justify="center" py="20px">
+              <Spinner />
+            </Flex>
+          ) : notifications.length === 0 ? (
+            <Flex flexDirection="column">
+              <MenuItem _hover={{ bg: "none" }} _focus={{ bg: "none" }} px="0" borderRadius="8px">
+                <ItemContent info="No hay notificaciones pendientes." />
+              </MenuItem>
+            </Flex>
+          ) : (
+            <>
+              {notifications.map((notif) => {
+                const data = notif.data;
+                const config = TIPO_CONFIG[data.tipo] || { color: "blue", icon: "🔔" };
+
+                return (
+                  <MenuItem
+                    key={notif.id}
+                    _hover={{ bg: "none" }}
+                    _focus={{ bg: "none" }}
+                    px="0"
+                    borderRadius="8px"
+                    mb="8px"
+                    onClick={() => !notif.read_at && handleMarkAsRead(notif.id)}
+                    opacity={notif.read_at ? 0.6 : 1}
+                    cursor="pointer"
+                  >
+                    <Flex w="100%">
+                      <Flex
+                        justify="center"
+                        align="center"
+                        borderRadius="16px"
+                        minH={{ base: "50px", md: "56px" }}
+                        h={{ base: "50px", md: "56px" }}
+                        minW={{ base: "50px", md: "56px" }}
+                        w={{ base: "50px", md: "56px" }}
+                        me="14px"
+                        bg={
+                          notif.read_at
+                            ? "gray.100"
+                            : `linear-gradient(135deg, #868CFF 0%, #4318FF 100%)`
+                        }
+                      >
+                        <Text fontSize="xl">{config.icon}</Text>
+                      </Flex>
+                      <Flex flexDirection="column" flex="1">
+                        <Text
+                          mb="3px"
+                          fontWeight={notif.read_at ? "500" : "bold"}
+                          color={textColor}
+                          fontSize={{ base: "sm", md: "sm" }}
+                        >
+                          {data.mensaje || `Notificación de ${data.tipo}`}
+                        </Text>
+                        <Flex alignItems="center" justify="space-between">
+                          <Text
+                            fontSize={{ base: "xs", md: "xs" }}
+                            color="gray.500"
+                          >
+                            {formatDate(notif.created_at)}
+                          </Text>
+                          {!notif.read_at && (
+                            <Box
+                              w="8px"
+                              h="8px"
+                              borderRadius="full"
+                              bg="brand.500"
+                            />
+                          )}
+                        </Flex>
+                      </Flex>
+                    </Flex>
+                  </MenuItem>
+                );
+              })}
+
+              {hasMore && (
+                <Button
+                  mt="10px"
+                  w="100%"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLoadMore}
+                  isLoading={loading}
+                >
+                  Cargar más
+                </Button>
+              )}
+            </>
+          )}
         </MenuList>
       </Menu>
 
-      {/* Información */}
       <Menu>
         <MenuButton p="0px">
           <Icon
@@ -193,7 +370,6 @@ export default function HeaderLinks(props) {
         </MenuList>
       </Menu>
 
-      {/* Modo claro / oscuro */}
       <Button
         variant="no-hover"
         bg="transparent"
@@ -213,7 +389,6 @@ export default function HeaderLinks(props) {
         />
       </Button>
 
-      {/* Menú usuario */}
       <Menu>
         <MenuButton p="0px">
           <Avatar

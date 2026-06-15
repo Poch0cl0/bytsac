@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Controllers\Api\ClientController;
 use App\Http\Controllers\Api\PlanController;
+use App\Http\Controllers\Api\NotificationController;
 
 // --------------------------------------------------------
 // Rutas Públicas (Autenticación)
@@ -35,6 +36,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/plans', [PlanController::class, 'store'])->middleware('can:create plans');
     Route::put('/plans/{plan}', [PlanController::class, 'update'])->middleware('can:edit plans');
     Route::delete('/plans/{plan}', [PlanController::class, 'destroy'])->middleware('can:delete plans');
+
+    // ==========================================
+    // MÓDULO: NOTIFICACIONES
+    // ==========================================
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+    Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::patch('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
 
     // ==========================================
     // MÓDULO: SUSCRIPCIONES

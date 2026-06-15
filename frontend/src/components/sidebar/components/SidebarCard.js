@@ -1,9 +1,26 @@
-import { Button, Flex, Icon, Text } from "@chakra-ui/react";
-import React from "react";
+import { Button, Flex, Icon, Text, Badge } from "@chakra-ui/react";
+import React, { useState, useEffect, useCallback } from "react";
 import { MdNotificationsActive } from "react-icons/md";
+import { notificationApi } from "services/api";
 
 export default function SidebarDocs() {
   const bgColor = "linear-gradient(135deg, #868CFF 0%, #4318FF 100%)";
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const fetchCount = useCallback(async () => {
+    try {
+      const { data } = await notificationApi.getUnreadCount();
+      setUnreadCount(data.unread_count);
+    } catch {
+      console.error("Error al obtener conteo de notificaciones");
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCount();
+    const interval = setInterval(fetchCount, 30000);
+    return () => clearInterval(interval);
+  }, [fetchCount]);
 
   return (
     <Flex
@@ -25,8 +42,26 @@ export default function SidebarDocs() {
         justify="center"
         mx="auto"
         mb="14px"
+        position="relative"
       >
         <Icon as={MdNotificationsActive} color="white" w="34px" h="34px" />
+        {unreadCount > 0 && (
+          <Badge
+            position="absolute"
+            top="-4px"
+            right="-4px"
+            colorScheme="red"
+            borderRadius="full"
+            fontSize="12px"
+            w="24px"
+            h="24px"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            {unreadCount > 99 ? "99+" : unreadCount}
+          </Badge>
+        )}
       </Flex>
 
       <Text
@@ -47,7 +82,9 @@ export default function SidebarDocs() {
         mb="16px"
         textAlign="center"
       >
-        Revisa suscripciones próximas a vencer y da seguimiento a tus clientes.
+        {unreadCount > 0
+          ? `Tienes ${unreadCount} notificación${unreadCount !== 1 ? "es" : ""} pendiente${unreadCount !== 1 ? "s" : ""}.`
+          : "No hay alertas pendientes."}
       </Text>
 
       <Button

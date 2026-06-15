@@ -29,6 +29,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'edit subscriptions',
             'delete subscriptions',
             'renew subscriptions',
+            'view notifications',
         ];
 
         foreach ($permissions as $permission) {
@@ -45,10 +46,12 @@ class RolesAndPermissionsSeeder extends Seeder
             'create subscriptions',
             'edit subscriptions',
             'renew subscriptions',
+            'view notifications',
         ]);
         $clientRole->syncPermissions([
             'view plans',
             'view subscriptions',
+            'view notifications',
         ]);
 
         // Usuario Administrador

@@ -3,6 +3,7 @@ import React from "react";
 import { Icon } from "@chakra-ui/react";
 import {
   MdBarChart,
+  MdNotifications,
   MdPerson,
   MdHome,
   MdLock,
@@ -17,6 +18,7 @@ import DataTables from "views/admin/dataTables";
 import Clientes from "views/admin/clientes";
 import Planes from "views/admin/planes";
 import Suscripciones from "views/admin/suscripciones";
+import Notificaciones from "views/admin/notificaciones";
 
 // Auth Imports
 import SignInCentered from "views/auth/signIn";
@@ -63,6 +65,20 @@ const routes = [
       />
     ),
     component: <Suscripciones />,
+  },
+  {
+    name: "Notificaciones",
+    layout: "/admin",
+    path: "/notificaciones",
+    icon: (
+      <Icon
+        as={MdNotifications}
+        width="20px"
+        height="20px"
+        color="inherit"
+      />
+    ),
+    component: <Notificaciones />,
   },
   {
     name: "Perfil",

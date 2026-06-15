@@ -18,4 +18,14 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+export const notificationApi = {
+  getAll: (page = 1) => api.get(`/notifications?page=${page}`),
+
+  getUnreadCount: () => api.get("/notifications/unread-count"),
+
+  markAsRead: (id) => api.patch(`/notifications/${id}/read`),
+
+  markAllAsRead: () => api.patch("/notifications/read-all"),
+};
+
 export default api;
