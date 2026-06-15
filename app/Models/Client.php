@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\ActivityModule;
+use App\Traits\Auditable;
 use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +13,7 @@ use Illuminate\Notifications\Notifiable;
 
 class Client extends Model
 {
-    use BelongsToTenant, HasFactory, Notifiable;
+    use Auditable, BelongsToTenant, HasFactory, Notifiable;
 
     protected $fillable = [
         'tenant_id',
@@ -39,6 +41,23 @@ class Client extends Model
     public function subscriptions(): HasMany
     {
         return $this->hasMany(Subscription::class);
+    }
+
+    public function getAuditModule(): string
+    {
+        return ActivityModule::Clients->value;
+    }
+
+    public function getAuditDescription(string $action): string
+    {
+        $nombre = $this->razon_social ?? 'sin nombre';
+
+        return match ($action) {
+            'created' => "Cliente \"{$nombre}\" creado",
+            'updated' => "Cliente \"{$nombre}\" actualizado",
+            'deleted' => "Cliente \"{$nombre}\" eliminado",
+            default => "Cliente \"{$nombre}\": {$action}",
+        };
     }
 }
 
