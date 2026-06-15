@@ -42,5 +42,29 @@ class SubscriptionSeeder extends Seeder
         foreach ($subscriptions as $subscription) {
             Subscription::create($subscription);
         }
+
+        // Suscripción de ejemplo: próxima a vencer (3 días)
+        Subscription::create([
+            'tenant_id' => 1,
+            'client_id' => 1,
+            'plan_id' => 1,
+            'user_id' => 1,
+            'fecha_inicio' => Carbon::now()->subDays(27),
+            'fecha_fin' => Carbon::now()->addDays(3),
+            'estado' => 'activo',
+            'renovacion_automatica' => false,
+        ]);
+
+        // Suscripción de ejemplo: ya vencida (5 días atrás)
+        Subscription::create([
+            'tenant_id' => 1,
+            'client_id' => 2,
+            'plan_id' => 2,
+            'user_id' => 1,
+            'fecha_inicio' => Carbon::now()->subDays(35),
+            'fecha_fin' => Carbon::now()->subDays(5),
+            'estado' => 'activo',
+            'renovacion_automatica' => false,
+        ]);
     }
 }
