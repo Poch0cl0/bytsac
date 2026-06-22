@@ -36,6 +36,8 @@ class SeguimientoVencimiento extends Notification
             'fecha_fin' => $this->subscription->fecha_fin->format('Y-m-d'),
             'dias_vencido' => $this->dias_vencido,
             'tipo' => 'seguimiento',
+            'email_cliente' => $this->subscription->client->email,
+            'telefono_cliente' => $this->subscription->client->telefono,
             'mensaje' => "Seguimiento: La suscripción de {$this->subscription->client->razon_social} venció hace {$this->dias_vencido} días. Realiza acciones de recuperación.",
         ];
     }

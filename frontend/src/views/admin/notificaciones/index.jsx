@@ -4,8 +4,16 @@ import {
   Badge,
   Box,
   Button,
+  Divider,
   Flex,
   HStack,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Select,
   Spinner,
   Table,
@@ -16,7 +24,11 @@ import {
   Thead,
   Tr,
   useColorModeValue,
+  useDisclosure,
   useToast,
+  VStack,
+  Wrap,
+  WrapItem,
 } from "@chakra-ui/react";
 
 import Card from "components/card/Card";
@@ -36,11 +48,15 @@ export default function Notificaciones() {
   const [paginaActual, setPaginaActual] = useState(1);
   const [ultimaPagina, setUltimaPagina] = useState(1);
   const [total, setTotal] = useState(0);
+  const [notificacionSeleccionada, setNotificacionSeleccionada] = useState(null);
 
   const toast = useToast();
+  const { isOpen: modalAbierto, onOpen: abrirModal, onClose: cerrarModal } = useDisclosure();
 
   const textColor = useColorModeValue("secondaryGray.900", "white");
   const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
+  const hoverBg = useColorModeValue("gray.50", "whiteAlpha.50");
+  const bgMensaje = useColorModeValue("secondaryGray.50", "whiteAlpha.50");
 
   const cargarNotificaciones = useCallback(async (page = 1) => {
     setCargandoPagina(true);
@@ -252,9 +268,12 @@ export default function Notificaciones() {
                       <Tr
                         key={notif.id}
                         opacity={isUnread ? 1 : 0.6}
-                        cursor={isUnread ? "pointer" : "default"}
-                        _hover={{ bg: isUnread ? "gray.50" : undefined }}
-                        onClick={() => isUnread && handleMarkAsRead(notif.id)}
+                        cursor="pointer"
+                        _hover={{ bg: hoverBg }}
+                        onClick={() => {
+                          setNotificacionSeleccionada(notif);
+                          abrirModal();
+                        }}
                       >
                         <Td borderColor={borderColor}>
                           <HStack spacing="8px">
@@ -395,6 +414,204 @@ export default function Notificaciones() {
           </>
         )}
       </Card>
+      <Modal isOpen={modalAbierto} onClose={cerrarModal} size="xl" isCentered>
+        <ModalOverlay />
+        <ModalContent borderRadius="20px">
+          {notificacionSeleccionada && (() => {
+            const notif = notificacionSeleccionada;
+            const data = notif.data;
+            const config = TIPO_CONFIG[data.tipo] || { colorScheme: "blue", icon: "🔔", label: "Notificación" };
+            const isUnread = !notif.read_at;
+
+            const marcarLeida = async () => {
+              await handleMarkAsRead(notif.id);
+              cerrarModal();
+            };
+
+            return (
+              <>
+                <ModalHeader>
+                  <Flex align="center" gap="12px" wrap="wrap">
+                    <Badge colorScheme={config.colorScheme} borderRadius="8px" px="12px" py="6px" fontSize="sm">
+                      {config.icon} {config.label}
+                    </Badge>
+                    <Text fontSize="sm" color="gray.500">
+                      {formatDate(notif.created_at)}
+                    </Text>
+                  </Flex>
+                </ModalHeader>
+                <ModalCloseButton />
+
+                <ModalBody>
+                  <Text fontSize="xl" fontWeight="700" color={textColor}>
+                    {data.cliente}
+                  </Text>
+                  <Text fontSize="md" color="gray.500" mb="4px">
+                    {data.plan}
+                  </Text>
+                  <Text fontSize="sm" color="gray.400" mb="16px">
+                    ID Suscripción: #{data.subscription_id}
+                  </Text>
+
+                  <Divider mb="16px" />
+
+                  <Box bg={bgMensaje} p="20px" borderRadius="16px" mb="16px">
+                    {data.tipo === "aviso_comercial" ? (
+                      <>
+                        <Text fontSize="sm" lineHeight="1.8" color={textColor}>
+                          Se le informa que la suscripción del cliente{" "}
+                          <strong>{data.cliente}</strong> al plan{" "}
+                          <strong>{data.plan}</strong> se encuentra próxima a
+                          vencer.
+                        </Text>
+                        <VStack align="start" mt="16px" spacing="8px">
+                          <Wrap>
+                            <WrapItem>
+                              <Text fontSize="sm" color="gray.500">
+                                📅 Fecha de vencimiento:
+                              </Text>
+                            </WrapItem>
+                            <WrapItem>
+                              <Text fontSize="sm" fontWeight="600">
+                                {data.fecha_fin}
+                              </Text>
+                            </WrapItem>
+                          </Wrap>
+                          <Wrap>
+                            <WrapItem>
+                              <Text fontSize="sm" color="gray.500">
+                                ⏱ Días restantes:
+                              </Text>
+                            </WrapItem>
+                            <WrapItem>
+                              <Text fontSize="sm" fontWeight="600">
+                                {data.dias_restantes} días
+                              </Text>
+                            </WrapItem>
+                          </Wrap>
+                        </VStack>
+                        <Text
+                          fontSize="sm"
+                          mt="16px"
+                          color="gray.600"
+                          fontStyle="italic"
+                        >
+                          Se recomienda contactar al cliente para gestionar la
+                          renovación del servicio a la brevedad posible.
+                        </Text>
+                      </>
+                    ) : (
+                      <>
+                        <Text fontSize="sm" lineHeight="1.8" color={textColor}>
+                          Se le informa que la suscripción del cliente{" "}
+                          <strong>{data.cliente}</strong> al plan{" "}
+                          <strong>{data.plan}</strong> venció hace{" "}
+                          <strong>{data.dias_vencido} días</strong>.
+                        </Text>
+                        <VStack align="start" mt="16px" spacing="8px">
+                          <Wrap>
+                            <WrapItem>
+                              <Text fontSize="sm" color="gray.500">
+                                📅 Fecha de vencimiento:
+                              </Text>
+                            </WrapItem>
+                            <WrapItem>
+                              <Text fontSize="sm" fontWeight="600">
+                                {data.fecha_fin}
+                              </Text>
+                            </WrapItem>
+                          </Wrap>
+                          <Wrap>
+                            <WrapItem>
+                              <Text fontSize="sm" color="gray.500">
+                                ⏱ Días vencido:
+                              </Text>
+                            </WrapItem>
+                            <WrapItem>
+                              <Text fontSize="sm" fontWeight="600">
+                                {data.dias_vencido} días
+                              </Text>
+                            </WrapItem>
+                          </Wrap>
+                        </VStack>
+                        <Text
+                          fontSize="sm"
+                          mt="16px"
+                          color="gray.600"
+                          fontStyle="italic"
+                        >
+                          {data.dias_vencido <= 7
+                            ? "Se requiere realizar las acciones de recuperación pertinentes para reconectar el servicio con el cliente."
+                            : "El período de gracia ha expirado. Se recomienda evaluar el caso y determinar las acciones finales de recuperación o baja del servicio."}
+                        </Text>
+                      </>
+                    )}
+                  </Box>
+
+                  {(data.email_cliente || data.telefono_cliente) && (
+                    <Box mb="16px">
+                      <Text fontSize="sm" fontWeight="600" color={textColor} mb="8px">
+                        Datos de contacto
+                      </Text>
+                      <VStack align="start" spacing="4px">
+                        {data.email_cliente && (
+                          <HStack>
+                            <Text fontSize="sm" color="gray.500" w="70px">Email:</Text>
+                            <Text fontSize="sm" color={textColor}>{data.email_cliente}</Text>
+                          </HStack>
+                        )}
+                        {data.telefono_cliente && (
+                          <HStack>
+                            <Text fontSize="sm" color="gray.500" w="70px">Teléfono:</Text>
+                            <Text fontSize="sm" color={textColor}>{data.telefono_cliente}</Text>
+                          </HStack>
+                        )}
+                      </VStack>
+                    </Box>
+                  )}
+
+                  <Divider mb="12px" />
+                  <VStack align="start" spacing="4px">
+                    <HStack>
+                      <Text fontSize="xs" color="gray.400">
+                        Recibida:
+                      </Text>
+                      <Text fontSize="xs" color="gray.500">
+                        {formatDate(notif.created_at)}
+                      </Text>
+                    </HStack>
+                    <HStack>
+                      <Text fontSize="xs" color="gray.400">
+                        Estado:
+                      </Text>
+                      <Badge
+                        colorScheme={isUnread ? "blue" : "gray"}
+                        fontSize="xs"
+                        borderRadius="6px"
+                        px="8px"
+                        py="2px"
+                      >
+                        {isUnread ? "No leída" : "Leída"}
+                      </Badge>
+                    </HStack>
+                  </VStack>
+                </ModalBody>
+
+                <ModalFooter>
+                  {isUnread && (
+                    <Button variant="brand" me="12px" onClick={marcarLeida}>
+                      Marcar como leída
+                    </Button>
+                  )}
+                  <Button variant="ghost" onClick={cerrarModal}>
+                    Cerrar
+                  </Button>
+                </ModalFooter>
+              </>
+            );
+          })()}
+        </ModalContent>
+      </Modal>
     </Box>
   );
 }
