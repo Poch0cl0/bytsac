@@ -1,0 +1,29 @@
+{
+  "categorical_features": [
+    "contract",
+    "payment_method",
+    "nivel_reportes",
+    "region",
+    "client_estado",
+    "partner",
+    "dependents"
+  ],
+  "numeric_features": [
+    "cycle_number",
+    "tenure_months",
+    "monthly_charges",
+    "total_charges",
+    "paperless_billing",
+    "control_stock",
+    "duracion_ciclo_dias",
+    "dias_restantes_al_corte",
+    "renovacion_automatica",
+    "alertas_enviadas",
+    "renovaciones_previas"
+  ],
+  "target_column": "target_renovo",
+  "id_columns": [
+    "client_id",
+    "subscription_id"
+  ]
+}

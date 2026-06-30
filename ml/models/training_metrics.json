@@ -1,0 +1,71 @@
+{
+  "trained_at": "2026-06-30T21:07:19.420117+00:00",
+  "input_file": "C:\\Users\\Jefferson Peña\\Desktop\\bytsac\\ml\\data\\bytsac_renovacion_simulado.csv",
+  "rows_total": 5000,
+  "rows_train": 4000,
+  "rows_test": 1000,
+  "target_renovo_rate": 0.7346,
+  "accuracy": 0.904,
+  "f1_score": 0.9353099730458221,
+  "roc_auc": 0.9676806571685277,
+  "confusion_matrix": [
+    [
+      210,
+      55
+    ],
+    [
+      41,
+      694
+    ]
+  ],
+  "classification_report": {
+    "no_renova": {
+      "precision": 0.8366533864541833,
+      "recall": 0.7924528301886793,
+      "f1-score": 0.813953488372093,
+      "support": 265.0
+    },
+    "renova": {
+      "precision": 0.9265687583444593,
+      "recall": 0.9442176870748299,
+      "f1-score": 0.9353099730458221,
+      "support": 735.0
+    },
+    "accuracy": 0.904,
+    "macro avg": {
+      "precision": 0.8816110723993213,
+      "recall": 0.8683352586317545,
+      "f1-score": 0.8746317307089575,
+      "support": 1000.0
+    },
+    "weighted avg": {
+      "precision": 0.9027411847935362,
+      "recall": 0.904,
+      "f1-score": 0.9031505046072839,
+      "support": 1000.0
+    }
+  },
+  "categorical_features": [
+    "contract",
+    "payment_method",
+    "nivel_reportes",
+    "region",
+    "client_estado",
+    "partner",
+    "dependents"
+  ],
+  "numeric_features": [
+    "cycle_number",
+    "tenure_months",
+    "monthly_charges",
+    "total_charges",
+    "paperless_billing",
+    "control_stock",
+    "duracion_ciclo_dias",
+    "dias_restantes_al_corte",
+    "renovacion_automatica",
+    "alertas_enviadas",
+    "renovaciones_previas"
+  ],
+  "algorithm": "GradientBoostingClassifier"
+}

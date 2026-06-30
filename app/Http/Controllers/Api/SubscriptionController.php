@@ -10,16 +10,19 @@ use App\Models\Client;
 use App\Models\Plan;
 use App\Models\Subscription;
 use App\Services\ActivityLogService;
+use App\Services\RenewalPredictionService;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class SubscriptionController extends Controller
 {
     public function __construct(
         private readonly ActivityLogService $activityLogService,
+        private readonly RenewalPredictionService $renewalPredictionService,
     ) {}
 
     /**
@@ -91,6 +94,88 @@ class SubscriptionController extends Controller
         $subscription->load(['client', 'plan']);
 
         return response()->json($subscription);
+    }
+
+    /**
+     * Predicciones IA para todas las suscripciones del tenant (resumen + detalle).
+     */
+    public function renewalPredictions(Request $request): JsonResponse
+    {
+        $this->authorize('viewAny', Subscription::class);
+
+        if (! $this->renewalPredictionService->isAvailable()) {
+            return response()->json([
+                'available' => false,
+                'message' => 'El servicio de predicción no está disponible. Entrena el modelo con: python ml/scripts/train_model.py',
+            ], 503);
+        }
+
+        try {
+            $predictions = $this->renewalPredictionService->predictForTenant(
+                auth()->user()->tenant_id
+            );
+
+            $summary = $this->renewalPredictionService->summarize($predictions);
+
+            $payload = [
+                'available' => true,
+                'message' => 'Predicciones generadas correctamente.',
+                'summary' => $summary,
+            ];
+
+            if (! $request->boolean('summary_only')) {
+                $payload['predictions'] = array_map(
+                    fn (array $prediction) => $this->formatPredictionPayload($prediction),
+                    $predictions
+                );
+            }
+
+            return response()->json($payload);
+        } catch (Throwable $e) {
+            Log::error('Error en predicciones IA', [
+                'message' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'available' => false,
+                'message' => 'No se pudieron generar las predicciones.',
+                'error' => 'Verifica que Python y el modelo ML esten instalados (pip install -r ml/requirements.txt).',
+            ], 500);
+        }
+    }
+
+    /**
+     * Predicción IA: probabilidad de que el cliente renueve la suscripción.
+     */
+    public function renewalPrediction(Subscription $subscription): JsonResponse
+    {
+        $this->authorize('view', $subscription);
+        $this->ensureTenantAccess($subscription);
+
+        if (! $this->renewalPredictionService->isAvailable()) {
+            return response()->json([
+                'message' => 'El servicio de predicción no está disponible. Entrena el modelo con: python ml/scripts/train_model.py',
+            ], 503);
+        }
+
+        try {
+            $prediction = $this->renewalPredictionService->predict($subscription);
+
+            return response()->json([
+                'message' => 'Predicción generada correctamente.',
+                'prediction' => $this->formatPredictionPayload($prediction),
+            ]);
+        } catch (Throwable $e) {
+            Log::error('Error en prediccion IA individual', [
+                'subscription_id' => $subscription->id,
+                'message' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'message' => 'No se pudo generar la predicción.',
+                'error' => 'Verifica que Python y el modelo ML esten instalados.',
+            ], 500);
+        }
     }
 
     /**
@@ -240,5 +325,26 @@ class SubscriptionController extends Controller
         if ($subscription->tenant_id !== auth()->user()->tenant_id) {
             abort(403, 'No autorizado. Esta suscripción pertenece a otra organización.');
         }
+    }
+
+    /**
+     * @param  array<string, mixed>  $prediction
+     * @return array<string, mixed>
+     */
+    protected function formatPredictionPayload(array $prediction): array
+    {
+        return [
+            'subscription_id' => $prediction['subscription_id'] ?? null,
+            'client_id' => $prediction['client_id'] ?? null,
+            'client_name' => $prediction['client_name'] ?? null,
+            'plan_name' => $prediction['plan_name'] ?? null,
+            'estado' => $prediction['estado'] ?? null,
+            'fecha_fin' => $prediction['fecha_fin'] ?? null,
+            'dias_restantes' => $prediction['dias_restantes'] ?? null,
+            'probabilidad_renovacion' => $prediction['probabilidad_renovacion'],
+            'probabilidad_no_renovacion' => $prediction['probabilidad_no_renovacion'],
+            'prediccion_renovara' => (bool) $prediction['prediccion_renovara'],
+            'nivel_probabilidad_renovacion' => $prediction['nivel_probabilidad_renovacion'],
+        ];
     }
 }

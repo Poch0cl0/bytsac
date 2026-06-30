@@ -49,8 +49,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // ==========================================
     // MÓDULO: SUSCRIPCIONES
     // ==========================================
+    Route::get('/subscriptions/renewal-predictions', [SubscriptionController::class, 'renewalPredictions'])->middleware('can:view subscriptions');
     Route::get('/subscriptions', [SubscriptionController::class, 'index'])->middleware('can:view subscriptions');
     Route::get('/subscriptions/{subscription}', [SubscriptionController::class, 'show'])->middleware('can:view subscriptions');
+    Route::get('/subscriptions/{subscription}/renewal-prediction', [SubscriptionController::class, 'renewalPrediction'])->middleware('can:view subscriptions');
     
     // Creación y Modificación (Comercial y Admin)
     Route::post('/subscriptions', [SubscriptionController::class, 'store'])->middleware('can:create subscriptions');
