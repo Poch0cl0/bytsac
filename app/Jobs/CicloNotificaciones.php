@@ -3,17 +3,10 @@
 namespace App\Jobs;
 
 use App\Services\NotificacionService;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class CicloNotificaciones implements ShouldQueue
+class CicloNotificaciones
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
     public function handle(): void
     {
         try {
@@ -23,8 +16,5 @@ class CicloNotificaciones implements ShouldQueue
         } catch (\Exception $e) {
             Log::error('CicloNotificaciones: error - ' . $e->getMessage());
         }
-
-        $proximaEjecucion = now()->addDay()->startOfDay()->addHours(6);
-        CicloNotificaciones::dispatch()->delay($proximaEjecucion);
     }
 }

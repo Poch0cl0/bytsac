@@ -18,6 +18,7 @@ import {
   ModalHeader,
   ModalOverlay,
   Select,
+  SimpleGrid,
   Spinner,
   Table,
   Tbody,
@@ -35,11 +36,18 @@ import {
   MdAutorenew,
   MdCancel,
   MdDelete,
+  MdInsights,
   MdSync,
 } from "react-icons/md";
 
 import Card from "components/card/Card";
-import api from "services/api";
+import api, { renewalPredictionApi } from "services/api";
+import {
+  formatearPorcentajeRenovacion,
+  mapPredictionsBySubscriptionId,
+  obtenerColorNivelRenovacion,
+  obtenerEtiquetaNivelRenovacion,
+} from "utils/renewalPrediction";
 
 export default function Suscripciones() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -55,6 +63,11 @@ export default function Suscripciones() {
   const [accionId, setAccionId] = useState(null);
   const [error, setError] = useState("");
 
+  const [prediccionesMap, setPrediccionesMap] = useState({});
+  const [resumenIA, setResumenIA] = useState(null);
+  const [cargandoPredicciones, setCargandoPredicciones] = useState(false);
+  const [errorML, setErrorML] = useState("");
+
   const [form, setForm] = useState({
     client_id: "",
     plan_id: "",
@@ -66,6 +79,7 @@ export default function Suscripciones() {
 
   const textColor = useColorModeValue("secondaryGray.900", "white");
   const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
+  const resumenIaBg = useColorModeValue("purple.50", "whiteAlpha.50");
 
   const cargarDatos = async () => {
     try {
@@ -171,6 +185,91 @@ export default function Suscripciones() {
     if (numero <= 0) return "0 días";
 
     return `${numero} días`;
+  };
+
+  const generarPredicciones = async () => {
+    setCargandoPredicciones(true);
+    setErrorML("");
+
+    try {
+      const response = await renewalPredictionApi.getAll();
+
+      setResumenIA(response.data.summary || null);
+      setPrediccionesMap(
+        mapPredictionsBySubscriptionId(response.data.predictions || [])
+      );
+
+      toast({
+        title: "Predicciones IA generadas",
+        description: `Se analizaron ${response.data.summary?.total_analyzed || 0} suscripciones.`,
+        status: "success",
+        duration: 3500,
+        isClosable: true,
+        position: "top-right",
+      });
+    } catch (error) {
+      console.error("Error al generar predicciones:", error);
+
+      if (error.response?.status === 503) {
+        setErrorML(
+          error.response?.data?.message ||
+            "El servicio de predicción no está disponible."
+        );
+      } else {
+        setErrorML("No se pudieron generar las predicciones IA.");
+      }
+
+      toast({
+        title: "Predicción no disponible",
+        description:
+          error.response?.data?.message ||
+          "Verifica que el modelo ML esté entrenado en el backend.",
+        status: "warning",
+        duration: 4000,
+        isClosable: true,
+        position: "top-right",
+      });
+    } finally {
+      setCargandoPredicciones(false);
+    }
+  };
+
+  const generarPrediccionIndividual = async (suscripcion) => {
+    setAccionId(suscripcion.id);
+
+    try {
+      const response = await renewalPredictionApi.getOne(suscripcion.id);
+      const prediction = response.data.prediction;
+
+      setPrediccionesMap((prev) => ({
+        ...prev,
+        [suscripcion.id]: prediction,
+      }));
+
+      toast({
+        title: "Predicción generada",
+        description: `${prediction.client_name || "Cliente"}: ${formatearPorcentajeRenovacion(prediction.probabilidad_renovacion)} de renovación.`,
+        status: "info",
+        duration: 3000,
+        isClosable: true,
+        position: "top-right",
+      });
+    } catch (error) {
+      console.error("Error al predecir suscripción:", error);
+
+      toast({
+        title: "No se pudo predecir",
+        description:
+          error.response?.data?.message ||
+          "Revisa que el modelo ML esté disponible.",
+        status: "error",
+        duration: 3500,
+        isClosable: true,
+        position: "top-right",
+      });
+    } finally {
+      setAccionId(null);
+    }
   };
 
   const guardarSuscripcion = async (e) => {
@@ -401,10 +500,103 @@ export default function Suscripciones() {
             </Text>
           </Box>
 
-          <Button variant="brand" onClick={abrirModalNuevo}>
-            Nueva Suscripción
-          </Button>
+          <Flex gap="12px" wrap="wrap">
+            <Button
+              variant="outline"
+              colorScheme="purple"
+              leftIcon={<MdInsights />}
+              isLoading={cargandoPredicciones}
+              loadingText="Analizando..."
+              onClick={generarPredicciones}
+            >
+              Generar predicciones IA
+            </Button>
+
+            <Button variant="brand" onClick={abrirModalNuevo}>
+              Nueva Suscripción
+            </Button>
+          </Flex>
         </Flex>
+
+        {errorML && (
+          <Alert status="warning" borderRadius="12px" mb="20px">
+            <AlertIcon />
+            <Text fontSize="sm">{errorML}</Text>
+          </Alert>
+        )}
+
+        {resumenIA && resumenIA.total_analyzed > 0 && (
+          <Box
+            mb="24px"
+            p="20px"
+            borderRadius="16px"
+            border="1px solid"
+            borderColor={borderColor}
+            bg={resumenIaBg}
+          >
+            <Text color={textColor} fontSize="md" fontWeight="700" mb="12px">
+              Resumen general de renovaciones (IA)
+            </Text>
+
+            <SimpleGrid columns={{ base: 2, md: 3, xl: 6 }} gap="16px">
+              <Box>
+                <Text fontSize="xs" color="gray.500">
+                  Analizadas
+                </Text>
+                <Text fontSize="xl" fontWeight="800" color={textColor}>
+                  {resumenIA.total_analyzed}
+                </Text>
+              </Box>
+
+              <Box>
+                <Text fontSize="xs" color="gray.500">
+                  Prob. promedio
+                </Text>
+                <Text fontSize="xl" fontWeight="800" color="purple.500">
+                  {formatearPorcentajeRenovacion(
+                    resumenIA.promedio_probabilidad_renovacion
+                  )}
+                </Text>
+              </Box>
+
+              <Box>
+                <Text fontSize="xs" color="gray.500">
+                  Renovarán
+                </Text>
+                <Text fontSize="xl" fontWeight="800" color="green.500">
+                  {resumenIA.prediccion_renovaran}
+                </Text>
+              </Box>
+
+              <Box>
+                <Text fontSize="xs" color="gray.500">
+                  No renovarán
+                </Text>
+                <Text fontSize="xl" fontWeight="800" color="red.500">
+                  {resumenIA.prediccion_no_renovaran}
+                </Text>
+              </Box>
+
+              <Box>
+                <Text fontSize="xs" color="gray.500">
+                  Prob. alta
+                </Text>
+                <Text fontSize="xl" fontWeight="800" color="green.500">
+                  {resumenIA.nivel_alta}
+                </Text>
+              </Box>
+
+              <Box>
+                <Text fontSize="xs" color="gray.500">
+                  Prob. baja
+                </Text>
+                <Text fontSize="xl" fontWeight="800" color="red.500">
+                  {resumenIA.nivel_baja}
+                </Text>
+              </Box>
+            </SimpleGrid>
+          </Box>
+        )}
 
         {loading ? (
           <Flex justify="center" align="center" py="40px">
@@ -417,23 +609,26 @@ export default function Suscripciones() {
               color="gray.500"
               mb="24px"
               w="100%"
-              minW="900px"
+              minW="1100px"
             >
               <Thead>
                 <Tr>
-                  <Th borderColor={borderColor} w="27%">
+                  <Th borderColor={borderColor} w="22%">
                     Cliente / Plan
                   </Th>
-                  <Th borderColor={borderColor} w="18%">
+                  <Th borderColor={borderColor} w="15%">
                     Fechas
                   </Th>
-                  <Th borderColor={borderColor} w="12%">
+                  <Th borderColor={borderColor} w="9%">
                     Días
                   </Th>
-                  <Th borderColor={borderColor} w="12%">
-                    Renovación
+                  <Th borderColor={borderColor} w="14%">
+                    Predicción IA
                   </Th>
-                  <Th borderColor={borderColor} w="11%">
+                  <Th borderColor={borderColor} w="10%">
+                    Auto-renov.
+                  </Th>
+                  <Th borderColor={borderColor} w="10%">
                     Estado
                   </Th>
                   <Th borderColor={borderColor} w="20%" textAlign="center">
@@ -484,6 +679,52 @@ export default function Suscripciones() {
                       >
                         {obtenerDiasRestantes(suscripcion.dias_restantes)}
                       </Text>
+                    </Td>
+
+                    <Td borderColor={borderColor}>
+                      {prediccion ? (
+                        <Box>
+                          <Text
+                            fontSize="sm"
+                            fontWeight="800"
+                            color={textColor}
+                          >
+                            {formatearPorcentajeRenovacion(
+                              prediccion.probabilidad_renovacion
+                            )}
+                          </Text>
+                          <Badge
+                            mt="6px"
+                            colorScheme={obtenerColorNivelRenovacion(
+                              prediccion.nivel_probabilidad_renovacion
+                            )}
+                            borderRadius="8px"
+                            px="8px"
+                          >
+                            {obtenerEtiquetaNivelRenovacion(
+                              prediccion.nivel_probabilidad_renovacion
+                            )}
+                          </Badge>
+                          <Text fontSize="xs" color="gray.500" mt="4px">
+                            {prediccion.prediccion_renovara
+                              ? "Renovará"
+                              : "Riesgo de no renovar"}
+                          </Text>
+                        </Box>
+                      ) : (
+                        <Button
+                          size="xs"
+                          variant="ghost"
+                          colorScheme="purple"
+                          leftIcon={<MdInsights />}
+                          isLoading={accionId === suscripcion.id}
+                          onClick={() =>
+                            generarPrediccionIndividual(suscripcion)
+                          }
+                        >
+                          Predecir
+                        </Button>
+                      )}
                     </Td>
 
                     <Td borderColor={borderColor}>
@@ -571,7 +812,7 @@ export default function Suscripciones() {
                         </Button>
                       </Flex>
                     </Td>
-                  </Tr>
+                    </Tr>
                 ))}
               </Tbody>
             </Table>

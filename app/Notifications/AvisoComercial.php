@@ -33,6 +33,8 @@ class AvisoComercial extends Notification
             'fecha_fin' => $this->subscription->fecha_fin->format('Y-m-d'),
             'dias_restantes' => $this->subscription->dias_restantes,
             'tipo' => 'aviso_comercial',
+            'email_cliente' => $this->subscription->client->email,
+            'telefono_cliente' => $this->subscription->client->telefono,
             'mensaje' => "Alerta comercial: La suscripción de {$this->subscription->client->razon_social} al plan {$this->subscription->plan->nombre} vence el {$this->subscription->fecha_fin->format('d/m/Y')}. Contacta al cliente para renovación.",
         ];
     }

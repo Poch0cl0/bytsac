@@ -42,4 +42,16 @@ export const notificationApi = {
     api.patch("/notifications/preferences", preferences),
 };
 
+export const renewalPredictionApi = {
+  getAll: () => api.get("/subscriptions/renewal-predictions"),
+
+  getSummary: () =>
+    api.get("/subscriptions/renewal-predictions", {
+      params: { summary_only: 1 },
+    }),
+
+  getOne: (subscriptionId) =>
+    api.get(`/subscriptions/${subscriptionId}/renewal-prediction`),
+};
+
 export default api;

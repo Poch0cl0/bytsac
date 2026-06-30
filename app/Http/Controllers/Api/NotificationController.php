@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Services\NotificacionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\DatabaseNotification;
@@ -10,6 +11,10 @@ use Illuminate\Validation\Rule;
 
 class NotificationController extends Controller
 {
+    public function __construct(
+        protected NotificacionService $notificacionService
+    ) {}
+
     public function index(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -39,6 +44,8 @@ class NotificationController extends Controller
 
     public function unreadCount(Request $request): JsonResponse
     {
+        $this->notificacionService->ejecutarCicloCompleto();
+
         $count = $request->user()
             ->unreadNotifications()
             ->count();

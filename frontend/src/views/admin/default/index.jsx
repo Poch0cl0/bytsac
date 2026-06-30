@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 
 import {
+  Alert,
+  AlertIcon,
   Badge,
   Box,
   Flex,
@@ -21,19 +23,27 @@ import {
   MdAttachMoney,
   MdBusiness,
   MdErrorOutline,
+  MdInsights,
   MdInventory,
   MdSubscriptions,
   MdWarning,
 } from "react-icons/md";
 
 import Card from "components/card/Card";
-import api from "services/api";
+import api, { renewalPredictionApi } from "services/api";
+import {
+  formatearPorcentajeRenovacion,
+  obtenerColorNivelRenovacion,
+} from "utils/renewalPrediction";
 
 export default function DashboardComercial() {
   const [loading, setLoading] = useState(true);
   const [clientes, setClientes] = useState([]);
   const [planes, setPlanes] = useState([]);
   const [suscripciones, setSuscripciones] = useState([]);
+  const [resumenIA, setResumenIA] = useState(null);
+  const [clientesEnRiesgo, setClientesEnRiesgo] = useState([]);
+  const [mlDisponible, setMlDisponible] = useState(false);
 
   const textColor = useColorModeValue("secondaryGray.900", "white");
   const textColorSecondary = useColorModeValue("gray.500", "gray.300");
@@ -55,6 +65,27 @@ export default function DashboardComercial() {
       setClientes(clientesResponse.data.data || []);
       setPlanes(planesResponse.data.data || []);
       setSuscripciones(suscripcionesResponse.data.data || []);
+
+      try {
+        const iaResponse = await renewalPredictionApi.getAll();
+        setResumenIA(iaResponse.data.summary || null);
+        setMlDisponible(true);
+
+        const predicciones = iaResponse.data.predictions || [];
+        const enRiesgo = [...predicciones]
+          .sort(
+            (a, b) =>
+              Number(a.probabilidad_renovacion) -
+              Number(b.probabilidad_renovacion)
+          )
+          .slice(0, 5);
+
+        setClientesEnRiesgo(enRiesgo);
+      } catch (error) {
+        setMlDisponible(false);
+        setResumenIA(null);
+        setClientesEnRiesgo([]);
+      }
     } catch (error) {
       console.error("Error cargando dashboard:", error);
     } finally {
@@ -211,7 +242,61 @@ export default function DashboardComercial() {
             />
           </SimpleGrid>
 
-          <SimpleGrid columns={{ base: 1, xl: 2 }} gap="20px">
+          {mlDisponible && resumenIA && resumenIA.total_analyzed > 0 && (
+            <>
+              <SimpleGrid columns={{ base: 1, md: 2, xl: 4 }} gap="20px" mb="20px">
+                <MetricCard
+                  title="Prob. promedio de renovación"
+                  value={formatearPorcentajeRenovacion(
+                    resumenIA.promedio_probabilidad_renovacion
+                  )}
+                  subtitle="Análisis IA del portafolio"
+                  icon={MdInsights}
+                  color="purple.500"
+                />
+
+                <MetricCard
+                  title="Predicción: renovarán"
+                  value={resumenIA.prediccion_renovaran}
+                  subtitle={`De ${resumenIA.total_analyzed} suscripciones`}
+                  icon={MdSubscriptions}
+                  color="green.500"
+                />
+
+                <MetricCard
+                  title="Predicción: no renovarán"
+                  value={resumenIA.prediccion_no_renovaran}
+                  subtitle="Requieren seguimiento comercial"
+                  icon={MdWarning}
+                  color="orange.500"
+                />
+
+                <MetricCard
+                  title="Probabilidad baja"
+                  value={resumenIA.nivel_baja}
+                  subtitle="Clientes en riesgo alto"
+                  icon={MdErrorOutline}
+                  color="red.500"
+                />
+              </SimpleGrid>
+            </>
+          )}
+
+          {!mlDisponible && (
+            <Alert status="info" borderRadius="12px" mb="20px">
+              <AlertIcon />
+              <Text fontSize="sm">
+                Las métricas de predicción IA no están disponibles. Entrena el
+                modelo con{" "}
+                <Text as="span" fontWeight="700">
+                  python ml/scripts/train_model.py
+                </Text>
+                .
+              </Text>
+            </Alert>
+          )}
+
+          <SimpleGrid columns={{ base: 1, xl: mlDisponible ? 3 : 2 }} gap="20px">
             <Card>
               <Flex mb="20px" justify="space-between" align="center">
                 <Box>
@@ -273,6 +358,78 @@ export default function DashboardComercial() {
                 </Table>
               </Box>
             </Card>
+
+            {mlDisponible && clientesEnRiesgo.length > 0 && (
+              <Card>
+                <Flex mb="20px" justify="space-between" align="center">
+                  <Box>
+                    <Text color={textColor} fontSize="22px" fontWeight="700">
+                      Clientes en riesgo (IA)
+                    </Text>
+                    <Text color={textColorSecondary} fontSize="sm">
+                      Menor probabilidad de renovación según el modelo.
+                    </Text>
+                  </Box>
+                </Flex>
+
+                <Box overflowX="auto">
+                  <Table variant="simple" color="gray.500">
+                    <Thead>
+                      <Tr>
+                        <Th borderColor={borderColor}>Cliente</Th>
+                        <Th borderColor={borderColor}>Plan</Th>
+                        <Th borderColor={borderColor}>Prob. renovación</Th>
+                        <Th borderColor={borderColor}>Nivel</Th>
+                      </Tr>
+                    </Thead>
+
+                    <Tbody>
+                      {clientesEnRiesgo.map((item) => (
+                        <Tr key={item.subscription_id}>
+                          <Td borderColor={borderColor}>
+                            <Text
+                              color={textColor}
+                              fontSize="sm"
+                              fontWeight="700"
+                            >
+                              {item.client_name || "Sin cliente"}
+                            </Text>
+                          </Td>
+
+                          <Td borderColor={borderColor}>
+                            <Text fontSize="sm">
+                              {item.plan_name || "Sin plan"}
+                            </Text>
+                          </Td>
+
+                          <Td borderColor={borderColor}>
+                            <Text fontSize="sm" fontWeight="700">
+                              {formatearPorcentajeRenovacion(
+                                item.probabilidad_renovacion
+                              )}
+                            </Text>
+                          </Td>
+
+                          <Td borderColor={borderColor}>
+                            <Badge
+                              colorScheme={obtenerColorNivelRenovacion(
+                                item.nivel_probabilidad_renovacion
+                              )}
+                              borderRadius="8px"
+                              px="10px"
+                              py="4px"
+                              textTransform="capitalize"
+                            >
+                              {item.nivel_probabilidad_renovacion}
+                            </Badge>
+                          </Td>
+                        </Tr>
+                      ))}
+                    </Tbody>
+                  </Table>
+                </Box>
+              </Card>
+            )}
 
             <Card>
               <Flex mb="20px" justify="space-between" align="center">

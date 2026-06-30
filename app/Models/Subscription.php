@@ -85,7 +85,7 @@ class Subscription extends Model
     protected function diasRestantes(): Attribute
     {
         return Attribute::make(
-            get: fn () => max(0, now()->diffInDays($this->fecha_fin, false))
+            get: fn () => max(0, (int) now()->diffInDays($this->fecha_fin, false))
         );
     }
 
