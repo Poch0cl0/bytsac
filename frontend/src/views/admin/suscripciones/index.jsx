@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 import {
   Alert,
@@ -41,6 +42,10 @@ import Card from "components/card/Card";
 import api from "services/api";
 
 export default function Suscripciones() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const highlightId = searchParams.get("highlight");
+  const tableRef = useRef(null);
+
   const [suscripciones, setSuscripciones] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [planes, setPlanes] = useState([]);
@@ -86,6 +91,23 @@ export default function Suscripciones() {
   useEffect(() => {
     cargarDatos();
   }, []);
+
+  useEffect(() => {
+    if (!highlightId || !tableRef.current || suscripciones.length === 0) return;
+
+    const row = tableRef.current.querySelector(`[data-id="${highlightId}"]`);
+    if (row) {
+      row.scrollIntoView({ behavior: "smooth", block: "center" });
+      row.style.backgroundColor = "rgba(67, 24, 255, 0.1)";
+      setTimeout(() => {
+        row.style.backgroundColor = "";
+      }, 3000);
+    }
+
+    const next = new URLSearchParams(searchParams);
+    next.delete("highlight");
+    setSearchParams(next, { replace: true });
+  }, [highlightId, suscripciones, searchParams, setSearchParams]);
 
   const limpiarFormulario = () => {
     setForm({
@@ -420,9 +442,9 @@ export default function Suscripciones() {
                 </Tr>
               </Thead>
 
-              <Tbody>
+              <Tbody ref={tableRef}>
                 {suscripciones.map((suscripcion) => (
-                  <Tr key={suscripcion.id}>
+                  <Tr key={suscripcion.id} data-id={suscripcion.id}>
                     <Td borderColor={borderColor}>
                       <Text color={textColor} fontSize="sm" fontWeight="700">
                         {suscripcion.client?.razon_social || "Sin cliente"}

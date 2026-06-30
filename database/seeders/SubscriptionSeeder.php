@@ -12,8 +12,8 @@ class SubscriptionSeeder extends Seeder
     public function run(): void
     {
         // Obtenemos los planes para usar su duración real
-        $planBasico = Plan::find(1);
-        $planPremium = Plan::find(2);
+        $planBasico = Plan::where('nombre', 'Plan Básico')->where('tenant_id', 1)->first();
+        $planPremium = Plan::where('nombre', 'Plan Profesional')->where('tenant_id', 1)->first();
 
         $subscriptions = [
             [
@@ -22,7 +22,6 @@ class SubscriptionSeeder extends Seeder
                 'plan_id' => $planBasico->id ?? 1,
                 'user_id' => 1,
                 'fecha_inicio' => Carbon::now()->startOfDay(),
-                // Lógica idéntica al Controller:
                 'fecha_fin' => Carbon::now()->startOfDay()->addDays($planBasico->duracion_dias ?? 30),
                 'estado' => 'activo',
                 'renovacion_automatica' => true,
@@ -40,31 +39,46 @@ class SubscriptionSeeder extends Seeder
         ];
 
         foreach ($subscriptions as $subscription) {
-            Subscription::create($subscription);
+            Subscription::updateOrCreate(
+                [
+                    'client_id' => $subscription['client_id'],
+                    'plan_id' => $subscription['plan_id'],
+                    'fecha_inicio' => $subscription['fecha_inicio'],
+                ],
+                $subscription
+            );
         }
 
         // Suscripción de ejemplo: próxima a vencer (3 días)
-        Subscription::create([
-            'tenant_id' => 1,
-            'client_id' => 1,
-            'plan_id' => 1,
-            'user_id' => 1,
-            'fecha_inicio' => Carbon::now()->subDays(27),
-            'fecha_fin' => Carbon::now()->addDays(3),
-            'estado' => 'activo',
-            'renovacion_automatica' => false,
-        ]);
+        Subscription::updateOrCreate(
+            [
+                'client_id' => 1,
+                'plan_id' => $planBasico->id ?? 1,
+                'fecha_inicio' => Carbon::now()->subDays(27)->startOfDay(),
+            ],
+            [
+                'tenant_id' => 1,
+                'user_id' => 1,
+                'fecha_fin' => Carbon::now()->addDays(3),
+                'estado' => 'activo',
+                'renovacion_automatica' => false,
+            ]
+        );
 
         // Suscripción de ejemplo: ya vencida (5 días atrás)
-        Subscription::create([
-            'tenant_id' => 1,
-            'client_id' => 2,
-            'plan_id' => 2,
-            'user_id' => 1,
-            'fecha_inicio' => Carbon::now()->subDays(35),
-            'fecha_fin' => Carbon::now()->subDays(5),
-            'estado' => 'activo',
-            'renovacion_automatica' => false,
-        ]);
+        Subscription::updateOrCreate(
+            [
+                'client_id' => 2,
+                'plan_id' => $planPremium->id ?? 2,
+                'fecha_inicio' => Carbon::now()->subDays(35)->startOfDay(),
+            ],
+            [
+                'tenant_id' => 1,
+                'user_id' => 1,
+                'fecha_fin' => Carbon::now()->subDays(5),
+                'estado' => 'activo',
+                'renovacion_automatica' => false,
+            ]
+        );
     }
 }

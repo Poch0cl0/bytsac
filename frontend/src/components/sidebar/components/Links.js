@@ -2,7 +2,8 @@
 import React from "react";
 import { NavLink, useLocation } from "react-router-dom";
 // chakra imports
-import { Box, Flex, HStack, Text, useColorModeValue } from "@chakra-ui/react";
+import { Badge, Box, Flex, HStack, Text, useColorModeValue } from "@chakra-ui/react";
+import { useNotifications } from "hooks/useNotifications";
 
 export function SidebarLinks(props) {
   //   Chakra color mode
@@ -17,6 +18,7 @@ export function SidebarLinks(props) {
   let brandColor = useColorModeValue("brand.500", "brand.400");
 
   const { routes } = props;
+  const { unreadCount } = useNotifications();
 
   // verifies if routeName is the one active (in browser input)
   const activeRoute = (routeName) => {
@@ -81,6 +83,11 @@ export function SidebarLinks(props) {
                       }>
                       {route.name}
                     </Text>
+                    {route.path === "/notificaciones" && unreadCount > 0 && (
+                      <Badge colorScheme="red" borderRadius="full" fontSize="10px" px="6px">
+                        {unreadCount > 99 ? "99+" : unreadCount}
+                      </Badge>
+                    )}
                   </Flex>
                   <Box
                     h='36px'

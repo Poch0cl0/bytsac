@@ -48,7 +48,19 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'notification_preferences' => 'array',
         ];
+    }
+
+    public function wantsNotification(string $tipo): bool
+    {
+        $preferences = $this->notification_preferences ?? [];
+
+        if (! array_key_exists($tipo, $preferences)) {
+            return true;
+        }
+
+        return filter_var($preferences[$tipo], FILTER_VALIDATE_BOOLEAN);
     }
 
     public function clients(): HasMany

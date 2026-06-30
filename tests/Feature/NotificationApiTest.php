@@ -129,4 +129,64 @@ class NotificationApiTest extends TestCase
         $response = $this->getJson('/api/notifications');
         $response->assertStatus(401);
     }
+
+    public function test_filtro_por_tipo(): void
+    {
+        $response = $this->getJson('/api/notifications?tipo=aviso_comercial');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(1, 'data');
+
+        $response = $this->getJson('/api/notifications?tipo=seguimiento');
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(0, 'data');
+    }
+
+    public function test_filtro_por_estado(): void
+    {
+        $listResponse = $this->getJson('/api/notifications');
+        $notificationId = $listResponse->json('data.0.id');
+        $this->patchJson("/api/notifications/{$notificationId}/read");
+
+        $response = $this->getJson('/api/notifications?estado=leidas');
+        $response->assertStatus(200);
+        $response->assertJsonCount(1, 'data');
+
+        $response = $this->getJson('/api/notifications?estado=no_leidas');
+        $response->assertStatus(200);
+        $response->assertJsonCount(0, 'data');
+    }
+
+    public function test_obtiene_preferencias_por_defecto(): void
+    {
+        $response = $this->getJson('/api/notifications/preferences');
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'aviso_comercial' => true,
+            'seguimiento' => true,
+        ]);
+    }
+
+    public function test_actualiza_preferencias(): void
+    {
+        $response = $this->patchJson('/api/notifications/preferences', [
+            'aviso_comercial' => false,
+            'seguimiento' => true,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'message' => 'Preferencias actualizadas correctamente.',
+            'preferences' => [
+                'aviso_comercial' => false,
+                'seguimiento' => true,
+            ],
+        ]);
+
+        $this->assertDatabaseHas('users', [
+            'id' => $this->otherUser->id,
+        ]);
+    }
 }

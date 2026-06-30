@@ -93,6 +93,10 @@ class NotificacionService
             ->get();
 
         foreach ($usuarios as $usuario) {
+            if (! $usuario->wantsNotification($tipo)) {
+                continue;
+            }
+
             $notification = match ($tipo) {
                 'aviso_comercial' => new AvisoComercial($subscription),
                 'seguimiento' => new SeguimientoVencimiento($subscription, $dias_vencido),

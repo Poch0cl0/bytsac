@@ -19,13 +19,27 @@ api.interceptors.request.use((config) => {
 });
 
 export const notificationApi = {
-  getAll: (page = 1) => api.get(`/notifications?page=${page}`),
+  getAll: (params = {}) => {
+    const searchParams = new URLSearchParams();
+
+    if (params.page) searchParams.append("page", params.page);
+    if (params.tipo) searchParams.append("tipo", params.tipo);
+    if (params.estado) searchParams.append("estado", params.estado);
+
+    const query = searchParams.toString();
+    return api.get(`/notifications${query ? `?${query}` : ""}`);
+  },
 
   getUnreadCount: () => api.get("/notifications/unread-count"),
 
   markAsRead: (id) => api.patch(`/notifications/${id}/read`),
 
   markAllAsRead: () => api.patch("/notifications/read-all"),
+
+  getPreferences: () => api.get("/notifications/preferences"),
+
+  updatePreferences: (preferences) =>
+    api.patch("/notifications/preferences", preferences),
 };
 
 export default api;

@@ -53,7 +53,67 @@ In order to ensure that the Laravel community is welcoming to all, please review
 
 If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
+## Cómo ejecutar BYTSAC localmente
+
+### Requisitos
+
+- PHP ^8.3
+- Composer
+- Node.js + npm
+- Extensión `pdo_sqlite` habilitada (por defecto usa SQLite)
+
+### Pasos
+
+1. **Clonar / ubicarse en el proyecto:**
+   ```bash
+   cd bytsac
+   ```
+
+2. **Instalar dependencias de PHP y JavaScript:**
+   ```bash
+   composer install
+   cd frontend
+   npm install
+   cd ..
+   ```
+
+3. **Configurar entorno:**
+   ```bash
+   copy .env.example .env        # Windows
+   # cp .env.example .env        # Linux/macOS
+   php artisan key:generate
+   ```
+
+4. **Crear base de datos SQLite y ejecutar migraciones/seeders:**
+   ```bash
+   New-Item -ItemType File -Path database/database.sqlite    # Windows PowerShell
+   # touch database/database.sqlite                          # Linux/macOS
+   php artisan migrate --seed
+   ```
+
+5. **Iniciar el backend:**
+   ```bash
+   php artisan serve
+   ```
+
+6. **En otra terminal, iniciar el frontend:**
+   ```bash
+   cd frontend
+   npm start
+   ```
+
+7. **Acceder:** abrir http://localhost:3000 e iniciar sesión con:
+   - **Admin:** `admin@bytsac.pe` / `Admin@2026!`
+   - **Comercial:** `comercial@bytsac.pe` / `Comercial@2026!`
+   - **Cliente:** `cliente@bytsac.pe` / `Cliente@2026!`
+
+### Comandos útiles
+
+- Ejecutar tests: `php artisan test`
+- Procesar notificaciones manualmente: `php artisan notifications:cycle`
+- Ver logs en tiempo real: `php artisan pail`
+
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-"# bytsac" 
+"# bytsac"

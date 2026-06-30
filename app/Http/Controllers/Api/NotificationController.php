@@ -6,15 +6,33 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Validation\Rule;
 
 class NotificationController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $notifications = $request->user()
+        $validated = $request->validate([
+            'tipo' => ['nullable', Rule::in(['aviso_comercial', 'seguimiento'])],
+            'estado' => ['nullable', Rule::in(['leidas', 'no_leidas'])],
+            'page' => ['nullable', 'integer', 'min:1'],
+        ]);
+
+        $query = $request->user()
             ->notifications()
-            ->latest()
-            ->paginate(20);
+            ->latest();
+
+        if (! empty($validated['tipo'])) {
+            $query->where('data->tipo', $validated['tipo']);
+        }
+
+        if (! empty($validated['estado'])) {
+            $validated['estado'] === 'no_leidas'
+                ? $query->whereNull('read_at')
+                : $query->whereNotNull('read_at');
+        }
+
+        $notifications = $query->paginate(20);
 
         return response()->json($notifications);
     }
@@ -47,5 +65,36 @@ class NotificationController extends Controller
             ->markAsRead();
 
         return response()->json(['message' => 'Todas las notificaciones fueron marcadas como leídas.']);
+    }
+
+    public function getPreferences(Request $request): JsonResponse
+    {
+        $preferences = $request->user()->notification_preferences ?? [];
+
+        return response()->json([
+            'aviso_comercial' => $preferences['aviso_comercial'] ?? true,
+            'seguimiento' => $preferences['seguimiento'] ?? true,
+        ]);
+    }
+
+    public function updatePreferences(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'aviso_comercial' => ['sometimes', 'boolean'],
+            'seguimiento' => ['sometimes', 'boolean'],
+        ]);
+
+        $user = $request->user();
+        $preferences = array_merge($user->notification_preferences ?? [], $validated);
+        $user->notification_preferences = $preferences;
+        $user->save();
+
+        return response()->json([
+            'message' => 'Preferencias actualizadas correctamente.',
+            'preferences' => [
+                'aviso_comercial' => $preferences['aviso_comercial'] ?? true,
+                'seguimiento' => $preferences['seguimiento'] ?? true,
+            ],
+        ]);
     }
 }

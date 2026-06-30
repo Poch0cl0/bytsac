@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Badge,
   Box,
@@ -20,50 +20,75 @@ import {
 } from "@chakra-ui/react";
 
 import Card from "components/card/Card";
-import { notificationApi } from "services/api";
+import { NotificationEmptyState } from "components/notifications";
+import { useNotifications } from "hooks/useNotifications";
+import {
+  NOTIFICATION_LABELS,
+  NOTIFICATION_STATUS,
+  NOTIFICATION_TYPES,
+  NOTIFICATION_TYPE_CONFIG,
+} from "constants/notifications";
 
-const TIPO_CONFIG = {
-  aviso_comercial: { colorScheme: "red", icon: "🔔", label: "Aviso Comercial" },
-  seguimiento: { colorScheme: "purple", icon: "📋", label: "Seguimiento" },
-};
+const TYPE_OPTIONS = [
+  { value: NOTIFICATION_STATUS.ALL, label: "Todos los tipos" },
+  { value: NOTIFICATION_TYPES.AVISO_COMERCIAL, label: "Aviso Comercial" },
+  { value: NOTIFICATION_TYPES.SEGUIMIENTO, label: "Seguimiento" },
+];
+
+const STATUS_OPTIONS = [
+  { value: NOTIFICATION_STATUS.ALL, label: "Todos los estados" },
+  { value: NOTIFICATION_STATUS.UNREAD, label: "No leídas" },
+  { value: NOTIFICATION_STATUS.READ, label: "Leídas" },
+];
 
 export default function Notificaciones() {
-  const [notificaciones, setNotificaciones] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [cargandoPagina, setCargandoPagina] = useState(false);
-  const [filtroTipo, setFiltroTipo] = useState("todas");
-  const [filtroEstado, setFiltroEstado] = useState("todas");
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const toast = useToast();
+
+  const {
+    notifications,
+    unreadCount,
+    loading,
+    fetchNotifications,
+    markAsRead,
+    markAllAsRead,
+  } = useNotifications();
+
   const [paginaActual, setPaginaActual] = useState(1);
   const [ultimaPagina, setUltimaPagina] = useState(1);
   const [total, setTotal] = useState(0);
 
-  const toast = useToast();
+  const filtroTipo = searchParams.get("tipo") || NOTIFICATION_STATUS.ALL;
+  const filtroEstado = searchParams.get("estado") || NOTIFICATION_STATUS.ALL;
 
   const textColor = useColorModeValue("secondaryGray.900", "white");
   const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
 
-  const cargarNotificaciones = useCallback(async (page = 1) => {
-    setCargandoPagina(true);
-    try {
-      const { data } = await notificationApi.getAll(page);
-      setNotificaciones(data.data);
-      setPaginaActual(data.current_page);
-      setUltimaPagina(data.last_page);
-      setTotal(data.total);
-    } catch {
-      toast({
-        title: "Error",
-        description: "No se pudieron cargar las notificaciones.",
-        status: "error",
-        duration: 4000,
-        isClosable: true,
-        position: "top-right",
-      });
-    } finally {
-      setLoading(false);
-      setCargandoPagina(false);
-    }
-  }, [toast]);
+  const cargarNotificaciones = useCallback(
+    async (page = 1) => {
+      const params = { page };
+      if (filtroTipo !== NOTIFICATION_STATUS.ALL) params.tipo = filtroTipo;
+      if (filtroEstado !== NOTIFICATION_STATUS.ALL) params.estado = filtroEstado;
+
+      try {
+        const data = await fetchNotifications(params);
+        setPaginaActual(data.current_page);
+        setUltimaPagina(data.last_page);
+        setTotal(data.total);
+      } catch {
+        toast({
+          title: "Error",
+          description: NOTIFICATION_LABELS.LOADING_ERROR,
+          status: "error",
+          duration: 4000,
+          isClosable: true,
+          position: "top-right",
+        });
+      }
+    },
+    [filtroTipo, filtroEstado, fetchNotifications, toast]
+  );
 
   useEffect(() => {
     cargarNotificaciones(1);
@@ -74,12 +99,29 @@ export default function Notificaciones() {
     cargarNotificaciones(page);
   };
 
+  const handleFiltroTipo = (value) => {
+    const next = new URLSearchParams(searchParams);
+    if (value === NOTIFICATION_STATUS.ALL) {
+      next.delete("tipo");
+    } else {
+      next.set("tipo", value);
+    }
+    setSearchParams(next);
+  };
+
+  const handleFiltroEstado = (value) => {
+    const next = new URLSearchParams(searchParams);
+    if (value === NOTIFICATION_STATUS.ALL) {
+      next.delete("estado");
+    } else {
+      next.set("estado", value);
+    }
+    setSearchParams(next);
+  };
+
   const handleMarkAllAsRead = async () => {
     try {
-      await notificationApi.markAllAsRead();
-      setNotificaciones((prev) =>
-        prev.map((n) => ({ ...n, read_at: n.read_at || new Date().toISOString() }))
-      );
+      await markAllAsRead();
       toast({
         title: "Notificaciones marcadas como leídas",
         status: "success",
@@ -90,7 +132,7 @@ export default function Notificaciones() {
     } catch {
       toast({
         title: "Error",
-        description: "No se pudieron marcar las notificaciones.",
+        description: NOTIFICATION_LABELS.MARK_ERROR,
         status: "error",
         duration: 3000,
         isClosable: true,
@@ -101,20 +143,21 @@ export default function Notificaciones() {
 
   const handleMarkAsRead = async (id) => {
     try {
-      await notificationApi.markAsRead(id);
-      setNotificaciones((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, read_at: new Date().toISOString() } : n))
-      );
+      await markAsRead(id);
     } catch {
       toast({
         title: "Error",
-        description: "No se pudo marcar la notificación.",
+        description: NOTIFICATION_LABELS.MARK_SINGLE_ERROR,
         status: "error",
         duration: 3000,
         isClosable: true,
         position: "top-right",
       });
     }
+  };
+
+  const handleVerSuscripcion = (subscriptionId) => {
+    navigate(`/admin/suscripciones?highlight=${subscriptionId}`);
   };
 
   const formatDate = (dateStr) => {
@@ -129,16 +172,7 @@ export default function Notificaciones() {
     });
   };
 
-  const notificacionesFiltradas = notificaciones.filter((n) => {
-    const tipoOk = filtroTipo === "todas" || n.data.tipo === filtroTipo;
-    const estadoOk =
-      filtroEstado === "todas" ||
-      (filtroEstado === "no_leidas" && !n.read_at) ||
-      (filtroEstado === "leidas" && n.read_at);
-    return tipoOk && estadoOk;
-  });
-
-  const unreadCount = notificaciones.filter((n) => !n.read_at).length;
+  const isEmpty = notifications.length === 0;
 
   return (
     <Box pt={{ base: "130px", md: "80px", xl: "80px" }}>
@@ -146,16 +180,16 @@ export default function Notificaciones() {
         <Flex mb="20px" justify="space-between" align="center" wrap="wrap" gap="10px">
           <Box>
             <Text color={textColor} fontSize="22px" fontWeight="700">
-              Notificaciones
+              {NOTIFICATION_LABELS.PAGE_TITLE}
             </Text>
             <Text color="gray.500" fontSize="sm">
-              Historial de alertas de vencimiento y seguimientos comerciales.
+              {NOTIFICATION_LABELS.PAGE_SUBTITLE}
             </Text>
           </Box>
 
           {unreadCount > 0 && (
             <Button variant="brand" onClick={handleMarkAllAsRead}>
-              Marcar todas como leídas ({unreadCount})
+              {NOTIFICATION_LABELS.MARK_ALL_AS_READ} ({unreadCount})
             </Button>
           )}
         </Flex>
@@ -163,65 +197,42 @@ export default function Notificaciones() {
         <HStack mb="20px" spacing="12px">
           <Select
             value={filtroTipo}
-            onChange={(e) => setFiltroTipo(e.target.value)}
+            onChange={(e) => handleFiltroTipo(e.target.value)}
             w="200px"
           >
-            <option value="todas">Todos los tipos</option>
-            <option value="aviso_comercial">Aviso Comercial</option>
-            <option value="seguimiento">Seguimiento</option>
+            {TYPE_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
           </Select>
 
           <Select
             value={filtroEstado}
-            onChange={(e) => setFiltroEstado(e.target.value)}
+            onChange={(e) => handleFiltroEstado(e.target.value)}
             w="200px"
           >
-            <option value="todas">Todos los estados</option>
-            <option value="no_leidas">No leídas</option>
-            <option value="leidas">Leídas</option>
+            {STATUS_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
           </Select>
         </HStack>
 
-        {loading ? (
+        {loading && isEmpty ? (
           <Flex justify="center" align="center" py="60px">
             <Spinner size="lg" />
           </Flex>
-        ) : notificaciones.length === 0 ? (
-          <Flex
-            direction="column"
-            align="center"
-            justify="center"
-            py="60px"
-            color="gray.500"
-          >
-            <Text fontSize="48px" mb="12px">
-              🔔
-            </Text>
-            <Text fontSize="lg" fontWeight="600" color={textColor}>
-              No hay notificaciones
-            </Text>
-            <Text fontSize="sm" mt="4px">
-              Las notificaciones de vencimiento y seguimiento aparecerán aquí.
-            </Text>
-          </Flex>
-        ) : notificacionesFiltradas.length === 0 ? (
-          <Flex
-            direction="column"
-            align="center"
-            justify="center"
-            py="60px"
-            color="gray.500"
-          >
-            <Text fontSize="48px" mb="12px">
-              🔍
-            </Text>
-            <Text fontSize="lg" fontWeight="600" color={textColor}>
-              Sin resultados
-            </Text>
-            <Text fontSize="sm" mt="4px">
-              No hay notificaciones con los filtros seleccionados.
-            </Text>
-          </Flex>
+        ) : isEmpty ? (
+          <NotificationEmptyState
+            variant={
+              filtroTipo !== NOTIFICATION_STATUS.ALL ||
+              filtroEstado !== NOTIFICATION_STATUS.ALL
+                ? "filter"
+                : "empty"
+            }
+          />
         ) : (
           <>
             <Box overflowX="auto">
@@ -239,9 +250,9 @@ export default function Notificaciones() {
                 </Thead>
 
                 <Tbody>
-                  {notificacionesFiltradas.map((notif) => {
-                    const data = notif.data;
-                    const config = TIPO_CONFIG[data.tipo] || {
+                  {notifications.map((notif) => {
+                    const data = notif.data || {};
+                    const config = NOTIFICATION_TYPE_CONFIG[data.tipo] || {
                       colorScheme: "blue",
                       icon: "🔔",
                       label: "Notificación",
@@ -305,29 +316,40 @@ export default function Notificaciones() {
                             px="10px"
                             py="4px"
                           >
-                            {isUnread ? "No leída" : "Leída"}
+                            {isUnread ? NOTIFICATION_LABELS.UNREAD : NOTIFICATION_LABELS.READ}
                           </Badge>
                         </Td>
 
                         <Td borderColor={borderColor}>
                           {isUnread ? (
-                            <>
-                              <Button
-                                size="xs"
-                                colorScheme="blue"
-                                variant="ghost"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleMarkAsRead(notif.id);
-                                }}
-                              >
-                                ✓ Leer
-                              </Button>
-                            </>
+                            <Button
+                              size="xs"
+                              colorScheme="blue"
+                              variant="ghost"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleMarkAsRead(notif.id);
+                              }}
+                            >
+                              {NOTIFICATION_LABELS.MARK_AS_READ}
+                            </Button>
                           ) : (
                             <Text fontSize="sm" color="gray.400">
                               —
                             </Text>
+                          )}
+                          {data.subscription_id && (
+                            <Button
+                              size="xs"
+                              colorScheme="brand"
+                              variant="ghost"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleVerSuscripcion(data.subscription_id);
+                              }}
+                            >
+                              Ver suscripción
+                            </Button>
                           )}
                         </Td>
                       </Tr>
@@ -339,7 +361,7 @@ export default function Notificaciones() {
 
             <HStack justify="space-between" mt="10px" wrap="wrap" gap="10px">
               <Text fontSize="sm" color="gray.500">
-                Mostrando {notificaciones.length} de {total} notificaciones
+                Mostrando {notifications.length} de {total} notificaciones
               </Text>
 
               <HStack>
@@ -348,7 +370,7 @@ export default function Notificaciones() {
                   variant="outline"
                   onClick={() => irPagina(paginaActual - 1)}
                   isDisabled={paginaActual <= 1}
-                  isLoading={cargandoPagina}
+                  isLoading={loading}
                 >
                   Anterior
                 </Button>
@@ -373,7 +395,7 @@ export default function Notificaciones() {
                         variant={p === paginaActual ? "solid" : "ghost"}
                         colorScheme={p === paginaActual ? "brand" : undefined}
                         onClick={() => irPagina(p)}
-                        isLoading={cargandoPagina && p !== paginaActual}
+                        isLoading={loading && p !== paginaActual}
                       >
                         {p}
                       </Button>
@@ -386,7 +408,7 @@ export default function Notificaciones() {
                   variant="outline"
                   onClick={() => irPagina(paginaActual + 1)}
                   isDisabled={paginaActual >= ultimaPagina}
-                  isLoading={cargandoPagina}
+                  isLoading={loading}
                 >
                   Siguiente
                 </Button>

@@ -200,4 +200,47 @@ class NotificacionServiceTest extends TestCase
 
         $this->assertDatabaseCount('notifications', 0);
     }
+
+    public function test_no_envia_aviso_comercial_cuando_usuario_lo_desactiva(): void
+    {
+        $this->admin->notification_preferences = ['aviso_comercial' => false, 'seguimiento' => true];
+        $this->admin->save();
+
+        $this->crearSub();
+
+        $this->service->procesarVencimientos();
+
+        $this->assertDatabaseMissing('notifications', [
+            'notifiable_id' => $this->admin->id,
+            'type' => AvisoComercial::class,
+        ]);
+
+        $this->assertDatabaseHas('notifications', [
+            'notifiable_id' => $this->comercial->id,
+            'type' => AvisoComercial::class,
+        ]);
+    }
+
+    public function test_no_envia_seguimiento_cuando_usuario_lo_desactiva(): void
+    {
+        $this->comercial->notification_preferences = ['aviso_comercial' => true, 'seguimiento' => false];
+        $this->comercial->save();
+
+        $this->crearSub([
+            'estado' => 'expirado',
+            'fecha_fin' => now()->subDays(5),
+        ]);
+
+        $this->service->procesarSeguimientos();
+
+        $this->assertDatabaseHas('notifications', [
+            'notifiable_id' => $this->admin->id,
+            'type' => SeguimientoVencimiento::class,
+        ]);
+
+        $this->assertDatabaseMissing('notifications', [
+            'notifiable_id' => $this->comercial->id,
+            'type' => SeguimientoVencimiento::class,
+        ]);
+    }
 }
