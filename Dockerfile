@@ -7,7 +7,7 @@ COPY composer.json composer.lock ./
 RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
 
 FROM php:8.3-fpm-alpine
-RUN apk add --no-cache python3 py3-pip nginx \
+RUN apk add --no-cache python3 py3-pip nginx gettext \
     libzip-dev oniguruma-dev \
     && docker-php-ext-install pdo_mysql mbstring zip opcache
 
@@ -24,12 +24,13 @@ RUN apk add --no-cache --virtual .ml-build-deps python3-dev gcc musl-dev g++ \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
-COPY docker/nginx.conf /etc/nginx/nginx.conf
+COPY docker/nginx.conf /etc/nginx/nginx.conf.template
 COPY docker/start.sh /start.sh
 RUN chmod +x /start.sh
 
 ENV ML_PYTHON_PATH=/opt/venv/bin/python
 ENV ML_PYTHON_ARGS=
+ENV PORT=80
 
 EXPOSE 80
 CMD ["/start.sh"]
