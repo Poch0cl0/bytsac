@@ -1,50 +1,50 @@
-FROM php:8.3-apache
+# ---- Etapa de construcción ----
+    FROM php:8.3-fpm-alpine AS builder
 
-# Instalar dependencias del sistema y Python
-RUN apt-get update && apt-get install -y \
-    python3 \
-    python3-pip \
-    python3-venv \
-    libzip-dev \
-    unzip \
-    git \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
-# Instalar extensiones de PHP necesarias
-RUN docker-php-ext-install pdo_mysql zip bcmath
-
-# Habilitar mod_rewrite para Laravel
-RUN a2enmod rewrite
-
-# Instalar Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-# Establecer directorio de trabajo
-WORKDIR /var/www/html
-
-# Copiar archivos de composer primero para cachear dependencias
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
-
-# Copiar el resto del código
-COPY . .
-
-# Instalar dependencias de Python (ML)
-COPY ml/requirements.txt ./ml/
-RUN pip3 install --no-cache-dir -r ./ml/requirements.txt
-
-# Configurar permisos para storage y bootstrap/cache
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
-    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
-
-# Configurar Apache para apuntar a public/ como DocumentRoot
-ENV APACHE_DOCUMENT_ROOT /var/www/html/public
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
-
-# Exponer puerto 80
-EXPOSE 80
-
-# Comando por defecto (Apache)
-CMD ["apache2-foreground"]
+    RUN apk add --no-cache git zip unzip libzip-dev libpng-dev oniguruma-dev \
+        && docker-php-ext-install pdo_mysql mbstring zip opcache
+    
+    COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+    
+    WORKDIR /app
+    COPY composer.json composer.lock ./
+    RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
+    
+    # ---- Imagen final ----
+    FROM php:8.3-fpm-alpine
+    
+    # Instalar Python y Nginx
+    RUN apk add --no-cache python3 py3-pip nginx \
+        && ln -sf python3 /usr/bin/python \
+        && ln -sf pip3 /usr/bin/pip
+    
+    # Instalar extensiones de PHP
+    RUN apk add --no-cache libzip-dev libpng-dev oniguruma-dev \
+        && docker-php-ext-install pdo_mysql mbstring zip opcache
+    
+    # Copiar Composer y vendor desde la etapa builder
+    COPY --from=builder /usr/bin/composer /usr/bin/composer
+    COPY --from=builder /app/vendor /app/vendor
+    COPY --from=builder /app/composer.json /app/composer.json
+    COPY --from=builder /app/composer.lock /app/composer.lock
+    
+    # Copiar código de la aplicación
+    WORKDIR /app
+    COPY . .
+    
+    # Instalar dependencias de Python si existen
+    RUN if [ -f ml/requirements.txt ]; then pip install --no-cache-dir -r ml/requirements.txt; fi
+    
+    # Configurar permisos
+    RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache \
+        && chmod -R 775 /app/storage /app/bootstrap/cache
+    
+    # Configurar Nginx para Laravel
+    COPY docker/nginx.conf /etc/nginx/nginx.conf
+    COPY docker/default.conf /etc/nginx/conf.d/default.conf
+    
+    # Exponer puerto 80 (Nginx)
+    EXPOSE 80
+    
+    # Iniciar PHP-FPM y Nginx
+    CMD ["sh", "-c", "php-fpm -D && nginx -g 'daemon off;'"]
