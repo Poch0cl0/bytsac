@@ -10,7 +10,6 @@ import {
   Text,
   useColorModeValue,
   useColorMode,
-  Box,
 } from "@chakra-ui/react";
 
 import { SearchBar } from "components/navbar/searchBar/SearchBar";

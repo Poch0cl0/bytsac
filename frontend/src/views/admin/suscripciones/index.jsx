@@ -638,7 +638,10 @@ export default function Suscripciones() {
               </Thead>
 
               <Tbody ref={tableRef}>
-                {suscripciones.map((suscripcion) => (
+                {suscripciones.map((suscripcion) => {
+                  const prediccion = prediccionesMap[suscripcion.id];
+
+                  return (
                   <Tr key={suscripcion.id} data-id={suscripcion.id}>
                     <Td borderColor={borderColor}>
                       <Text color={textColor} fontSize="sm" fontWeight="700">
@@ -813,7 +816,8 @@ export default function Suscripciones() {
                       </Flex>
                     </Td>
                     </Tr>
-                ))}
+                  );
+                })}
               </Tbody>
             </Table>
           </Box>
