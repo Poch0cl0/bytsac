@@ -27,37 +27,46 @@ class ClientController extends Controller
     {
         $this->authorize('create', Client::class);
 
-        try {
-            $tenantId = auth()->user()->tenant_id;
-            $data = $request->validate([
-                'razon_social' => ['required', 'string', 'max:200'],
-                'ruc' => [
-                    'nullable', 'string', 'max:20',
-                    Rule::unique('clients', 'ruc')->where('tenant_id', $tenantId),
-                ],
-                'direccion' => ['nullable', 'string', 'max:300'],
-                'telefono' => ['nullable', 'string', 'max:20'],
-                'email' => [
-                    'required', 'email', 'max:150',
-                    Rule::unique('clients', 'email')->where('tenant_id', $tenantId),
-                ],
-                'estado' => ['required', Rule::in(['activo', 'inactivo', 'suspendido'])],
-            ]);
-            $data['id_usuario_creador'] = auth()->id();
+        $tenantId = auth()->user()->tenant_id;
+        $data = $request->validate([
+            'razon_social' => ['required', 'string', 'max:200'],
+            'ruc' => [
+                'nullable', 'string', 'max:20',
+                Rule::unique('clients', 'ruc')->where('tenant_id', $tenantId),
+            ],
+            'direccion' => ['nullable', 'string', 'max:300'],
+            'telefono' => ['nullable', 'string', 'max:20'],
+            'email' => [
+                'required', 'email', 'max:150',
+                Rule::unique('clients', 'email')->where('tenant_id', $tenantId),
+            ],
+            'estado' => ['required', Rule::in(['activo', 'inactivo', 'suspendido'])],
+        ]);
+        $data['id_usuario_creador'] = auth()->id();
 
+        try {
             $client = Client::create($data);
 
             return response()->json($client, 201);
         } catch (QueryException $e) {
-            return response()->json(['message' => 'Database error', 'error' => $e->getMessage()], 422);
+            return response()->json([
+                'message' => 'No se pudo registrar el cliente. El RUC o correo podrían estar repetidos.',
+                'error' => $e->getMessage(),
+            ], 422);
         } catch (Throwable $e) {
-            return response()->json(['message' => 'Unexpected error', 'error' => $e->getMessage()], 500);
+            report($e);
+
+            return response()->json([
+                'message' => 'No se pudo registrar el cliente.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 
     public function show(Client $client): JsonResponse
     {
         $this->authorize('view', $client);
+
         return response()->json($client);
     }
 
@@ -65,30 +74,38 @@ class ClientController extends Controller
     {
         $this->authorize('update', $client);
 
-        try {
-            $tenantId = auth()->user()->tenant_id;
-            $data = $request->validate([
-                'razon_social' => ['required', 'string', 'max:200'],
-                'ruc' => [
-                    'nullable', 'string', 'max:20',
-                    Rule::unique('clients', 'ruc')->where('tenant_id', $tenantId)->ignore($client->id),
-                ],
-                'direccion' => ['nullable', 'string', 'max:300'],
-                'telefono' => ['nullable', 'string', 'max:20'],
-                'email' => [
-                    'required', 'email', 'max:150',
-                    Rule::unique('clients', 'email')->where('tenant_id', $tenantId)->ignore($client->id),
-                ],
-                'estado' => ['required', Rule::in(['activo', 'inactivo', 'suspendido'])],
-            ]);
+        $tenantId = auth()->user()->tenant_id;
+        $data = $request->validate([
+            'razon_social' => ['required', 'string', 'max:200'],
+            'ruc' => [
+                'nullable', 'string', 'max:20',
+                Rule::unique('clients', 'ruc')->where('tenant_id', $tenantId)->ignore($client->id),
+            ],
+            'direccion' => ['nullable', 'string', 'max:300'],
+            'telefono' => ['nullable', 'string', 'max:20'],
+            'email' => [
+                'required', 'email', 'max:150',
+                Rule::unique('clients', 'email')->where('tenant_id', $tenantId)->ignore($client->id),
+            ],
+            'estado' => ['required', Rule::in(['activo', 'inactivo', 'suspendido'])],
+        ]);
 
+        try {
             $client->update($data);
 
             return response()->json($client);
         } catch (QueryException $e) {
-            return response()->json(['message' => 'Database error', 'error' => $e->getMessage()], 422);
+            return response()->json([
+                'message' => 'No se pudo actualizar el cliente. El RUC o correo podrían estar repetidos.',
+                'error' => $e->getMessage(),
+            ], 422);
         } catch (Throwable $e) {
-            return response()->json(['message' => 'Unexpected error', 'error' => $e->getMessage()], 500);
+            report($e);
+
+            return response()->json([
+                'message' => 'No se pudo actualizar el cliente.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 
@@ -98,10 +115,15 @@ class ClientController extends Controller
 
         try {
             $client->delete();
+
             return response()->json(null, 204);
         } catch (Throwable $e) {
-            return response()->json(['message' => 'Unexpected error', 'error' => $e->getMessage()], 500);
+            report($e);
+
+            return response()->json([
+                'message' => 'No se pudo eliminar el cliente.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 }
-

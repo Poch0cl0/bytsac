@@ -124,6 +124,45 @@ class RenewalPredictionTest extends TestCase
             ->assertJsonMissingPath('predictions');
     }
 
+    /** Predicción por ID de suscripción: categoría alta|media|baja asignada */
+    public function test_prediccion_asigna_nivel_de_probabilidad_valido(): void
+    {
+        if (! File::exists(config('ml.model_path'))) {
+            $this->markTestSkipped('Modelo ML no entrenado.');
+        }
+
+        $subscription = $this->createSubscription();
+
+        $response = $this->actingAs($this->admin, 'sanctum')
+            ->getJson("/api/subscriptions/{$subscription->id}/renewal-prediction");
+
+        if ($response->status() === 503) {
+            $this->markTestSkipped('Servicio ML no disponible en este entorno.');
+        }
+
+        $response->assertOk();
+
+        $nivel = $response->json('prediction.nivel_probabilidad_renovacion');
+        $prob = $response->json('prediction.probabilidad_renovacion');
+
+        $this->assertContains($nivel, ['alta', 'media', 'baja']);
+        $this->assertIsNumeric($prob);
+        $this->assertGreaterThanOrEqual(0, $prob);
+        $this->assertLessThanOrEqual(1, $prob);
+    }
+
+    /** Modelo deshabilitado: API responde error controlado 503 */
+    public function test_api_responde_503_si_modelo_no_disponible(): void
+    {
+        config(['ml.enabled' => false]);
+
+        $subscription = $this->createSubscription();
+
+        $this->actingAs($this->admin, 'sanctum')
+            ->getJson("/api/subscriptions/{$subscription->id}/renewal-prediction")
+            ->assertStatus(503);
+    }
+
     private function createSubscription(): Subscription
     {
         $plan = Plan::factory()->create(['tenant_id' => 1]);
