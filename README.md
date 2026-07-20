@@ -91,16 +91,20 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
    php artisan migrate --seed
    ```
 
-5. **Iniciar el backend:**
+5. **Iniciar el backend (puerto 8001):**
    ```bash
-   php artisan serve
+   php artisan serve --port=8001
+   # o en Windows: .\start-backend.ps1
    ```
+   Usa el puerto **8001** porque el 8000 suele estar ocupado por otros proyectos. El frontend tiene un proxy hacia ese puerto.
 
 6. **En otra terminal, iniciar el frontend:**
    ```bash
    cd frontend
+   npm install --legacy-peer-deps
    npm start
    ```
+   Si cambias `package.json` (proxy) o `frontend/.env`, debes reiniciar `npm start`.
 
 7. **Acceder:** abrir http://localhost:3000 e iniciar sesión con:
    - **Admin:** `admin@bytsac.pe` / `Admin@2026!`
@@ -117,3 +121,4 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 "# bytsac"
+"# Backend-bytsac" 
