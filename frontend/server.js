@@ -7,19 +7,17 @@ const PORT = process.env.PORT || 3000;
 
 const API_URL = process.env.REACT_APP_API_URL || '';
 
-app.get('/', (req, res) => {
-  const html = fs.readFileSync(path.join(__dirname, 'build', 'index.html'), 'utf8');
-  const injected = html.replace(
-    '</head>',
-    `<script>window.API_URL="${API_URL}";</script></head>`
-  );
-  res.send(injected);
-});
+const html = fs.readFileSync(path.join(__dirname, 'build', 'index.html'), 'utf8');
+const injected = html.replace(
+  '</head>',
+  `<script>window.API_URL="${API_URL}";</script></head>`
+);
 
-app.use(express.static(path.join(__dirname, 'build')));
+app.use('/static', express.static(path.join(__dirname, 'build', 'static')));
+app.use(express.static(path.join(__dirname, 'build'), { index: false }));
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+  res.send(injected);
 });
 
 app.listen(PORT, () => {
