@@ -1,0 +1,1631 @@
+{
+  "activity_logs": {
+    "columns": [
+      "id",
+      "tenant_id",
+      "user_id",
+      "user_name",
+      "action",
+      "module",
+      "description",
+      "subject_type",
+      "subject_id",
+      "old_values",
+      "new_values",
+      "ip_address",
+      "user_agent",
+      "created_at"
+    ],
+    "rows": [
+      [
+        1,
+        1,
+        null,
+        "Sistema",
+        "created",
+        "plans",
+        "Plan \"Plan Básico\" creado",
+        "App\\Models\\Plan",
+        1,
+        null,
+        "{\"tenant_id\":1,\"nombre\":\"Plan B\\u00e1sico\",\"descripcion\":\"Plan ideal para peque\\u00f1os negocios\",\"precio_mensual\":99,\"precio_anual\":990,\"control_ventas_stock\":false,\"max_usuarios\":5,\"nivel_reportes\":\"basico\",\"activo\":true,\"id\":1}",
+        "127.0.0.1",
+        "Symfony",
+        "2026-06-30 16:41:03"
+      ],
+      [
+        2,
+        1,
+        null,
+        "Sistema",
+        "created",
+        "plans",
+        "Plan \"Plan Profesional\" creado",
+        "App\\Models\\Plan",
+        2,
+        null,
+        "{\"tenant_id\":1,\"nombre\":\"Plan Profesional\",\"descripcion\":\"Plan con control de stock y reportes avanzados\",\"precio_mensual\":199,\"precio_anual\":1990,\"control_ventas_stock\":true,\"max_usuarios\":15,\"nivel_reportes\":\"avanzado\",\"activo\":true,\"id\":2}",
+        "127.0.0.1",
+        "Symfony",
+        "2026-06-30 16:41:04"
+      ],
+      [
+        3,
+        1,
+        null,
+        "Sistema",
+        "created",
+        "plans",
+        "Plan \"Plan Enterprise\" creado",
+        "App\\Models\\Plan",
+        3,
+        null,
+        "{\"tenant_id\":1,\"nombre\":\"Plan Enterprise\",\"descripcion\":\"Soluci\\u00f3n completa con todas las funcionalidades\",\"precio_mensual\":399,\"precio_anual\":3990,\"control_ventas_stock\":true,\"max_usuarios\":50,\"nivel_reportes\":\"premium\",\"activo\":true,\"id\":3}",
+        "127.0.0.1",
+        "Symfony",
+        "2026-06-30 16:41:04"
+      ],
+      [
+        4,
+        1,
+        null,
+        "Sistema",
+        "created",
+        "clients",
+        "Cliente \"Cliente Test BYTSAC\" creado",
+        "App\\Models\\Client",
+        1,
+        null,
+        "{\"tenant_id\":1,\"razon_social\":\"Cliente Test BYTSAC\",\"ruc\":\"20123456789\",\"direccion\":\"Av. Demo 123, Lima\",\"telefono\":\"999888777\",\"email\":\"cliente@test.com\",\"estado\":\"activo\",\"id_usuario_creador\":1,\"id\":1}",
+        "127.0.0.1",
+        "Symfony",
+        "2026-06-30 16:41:04"
+      ],
+      [
+        5,
+        1,
+        null,
+        "Sistema",
+        "created",
+        "clients",
+        "Cliente \"Empresa Demo SAC\" creado",
+        "App\\Models\\Client",
+        2,
+        null,
+        "{\"tenant_id\":1,\"razon_social\":\"Empresa Demo SAC\",\"ruc\":\"20987654321\",\"direccion\":\"Jr. Principal 456, Lima\",\"telefono\":\"987654321\",\"email\":\"contacto@empresademo.com\",\"estado\":\"activo\",\"id_usuario_creador\":1,\"id\":2}",
+        "127.0.0.1",
+        "Symfony",
+        "2026-06-30 16:41:04"
+      ],
+      [
+        6,
+        1,
+        null,
+        "Sistema",
+        "created",
+        "subscriptions",
+        "Suscripción #1 creada",
+        "App\\Models\\Subscription",
+        1,
+        null,
+        "{\"tenant_id\":1,\"client_id\":1,\"plan_id\":1,\"user_id\":1,\"fecha_inicio\":\"2026-06-30 00:00:00\",\"fecha_fin\":\"2026-07-30 00:00:00\",\"estado\":\"activo\",\"renovacion_automatica\":true,\"id\":1}",
+        "127.0.0.1",
+        "Symfony",
+        "2026-06-30 16:41:04"
+      ],
+      [
+        7,
+        1,
+        null,
+        "Sistema",
+        "created",
+        "subscriptions",
+        "Suscripción #2 creada",
+        "App\\Models\\Subscription",
+        2,
+        null,
+        "{\"tenant_id\":1,\"client_id\":2,\"plan_id\":2,\"user_id\":1,\"fecha_inicio\":\"2026-06-30 00:00:00\",\"fecha_fin\":\"2026-07-30 00:00:00\",\"estado\":\"activo\",\"renovacion_automatica\":true,\"id\":2}",
+        "127.0.0.1",
+        "Symfony",
+        "2026-06-30 16:41:04"
+      ],
+      [
+        8,
+        1,
+        null,
+        "Sistema",
+        "created",
+        "subscriptions",
+        "Suscripción #3 creada",
+        "App\\Models\\Subscription",
+        3,
+        null,
+        "{\"tenant_id\":1,\"client_id\":1,\"plan_id\":1,\"user_id\":1,\"fecha_inicio\":\"2026-06-03 16:41:04\",\"fecha_fin\":\"2026-07-03 16:41:04\",\"estado\":\"activo\",\"renovacion_automatica\":false,\"id\":3}",
+        "127.0.0.1",
+        "Symfony",
+        "2026-06-30 16:41:04"
+      ],
+      [
+        9,
+        1,
+        null,
+        "Sistema",
+        "created",
+        "subscriptions",
+        "Suscripción #4 creada",
+        "App\\Models\\Subscription",
+        4,
+        null,
+        "{\"tenant_id\":1,\"client_id\":2,\"plan_id\":2,\"user_id\":1,\"fecha_inicio\":\"2026-05-26 16:41:04\",\"fecha_fin\":\"2026-06-25 16:41:04\",\"estado\":\"activo\",\"renovacion_automatica\":false,\"id\":4}",
+        "127.0.0.1",
+        "Symfony",
+        "2026-06-30 16:41:04"
+      ],
+      [
+        10,
+        1,
+        null,
+        "Sistema",
+        "created",
+        "subscriptions",
+        "Suscripción #5 creada",
+        "App\\Models\\Subscription",
+        5,
+        null,
+        "{\"client_id\":1,\"plan_id\":1,\"fecha_inicio\":\"2026-06-03 00:00:00\",\"tenant_id\":1,\"user_id\":1,\"fecha_fin\":\"2026-07-03 18:14:48\",\"estado\":\"activo\",\"renovacion_automatica\":false,\"id\":5}",
+        "127.0.0.1",
+        "Symfony",
+        "2026-06-30 18:14:48"
+      ],
+      [
+        11,
+        1,
+        null,
+        "Sistema",
+        "created",
+        "subscriptions",
+        "Suscripción #6 creada",
+        "App\\Models\\Subscription",
+        6,
+        null,
+        "{\"client_id\":2,\"plan_id\":2,\"fecha_inicio\":\"2026-05-26 00:00:00\",\"tenant_id\":1,\"user_id\":1,\"fecha_fin\":\"2026-06-25 18:14:49\",\"estado\":\"activo\",\"renovacion_automatica\":false,\"id\":6}",
+        "127.0.0.1",
+        "Symfony",
+        "2026-06-30 18:14:49"
+      ],
+      [
+        12,
+        1,
+        null,
+        "Sistema",
+        "updated",
+        "subscriptions",
+        "Suscripción #5 actualizada",
+        "App\\Models\\Subscription",
+        5,
+        "{\"fecha_fin\":\"2026-07-03T05:00:00.000000Z\"}",
+        "{\"fecha_fin\":\"2026-07-03 18:21:59\"}",
+        "127.0.0.1",
+        "Symfony",
+        "2026-06-30 18:21:59"
+      ],
+      [
+        13,
+        1,
+        null,
+        "Sistema",
+        "updated",
+        "subscriptions",
+        "Suscripción #6 actualizada",
+        "App\\Models\\Subscription",
+        6,
+        "{\"fecha_fin\":\"2026-06-25T05:00:00.000000Z\"}",
+        "{\"fecha_fin\":\"2026-06-25 18:21:59\"}",
+        "127.0.0.1",
+        "Symfony",
+        "2026-06-30 18:21:59"
+      ],
+      [
+        14,
+        1,
+        1,
+        "Administrador BYTSAC",
+        "login",
+        "auth",
+        "Inicio de sesión exitoso",
+        "App\\Models\\User",
+        1,
+        null,
+        null,
+        "127.0.0.1",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0",
+        "2026-06-30 18:26:48"
+      ],
+      [
+        15,
+        1,
+        1,
+        "Administrador BYTSAC",
+        "updated",
+        "subscriptions",
+        "Suscripción #3 actualizada",
+        "App\\Models\\Subscription",
+        3,
+        "{\"estado\":\"activo\"}",
+        "{\"estado\":\"por_vencer\"}",
+        "127.0.0.1",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0",
+        "2026-06-30 18:37:32"
+      ],
+      [
+        16,
+        1,
+        1,
+        "Administrador BYTSAC",
+        "updated",
+        "subscriptions",
+        "Suscripción #3 actualizada",
+        "App\\Models\\Subscription",
+        3,
+        "{\"ultima_alerta_enviada\":null}",
+        "{\"ultima_alerta_enviada\":\"2026-06-30\"}",
+        "127.0.0.1",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0",
+        "2026-06-30 18:37:32"
+      ],
+      [
+        17,
+        1,
+        1,
+        "Administrador BYTSAC",
+        "updated",
+        "subscriptions",
+        "Suscripción #5 actualizada",
+        "App\\Models\\Subscription",
+        5,
+        "{\"estado\":\"activo\"}",
+        "{\"estado\":\"por_vencer\"}",
+        "127.0.0.1",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0",
+        "2026-06-30 18:37:32"
+      ],
+      [
+        18,
+        1,
+        1,
+        "Administrador BYTSAC",
+        "updated",
+        "subscriptions",
+        "Suscripción #5 actualizada",
+        "App\\Models\\Subscription",
+        5,
+        "{\"ultima_alerta_enviada\":null}",
+        "{\"ultima_alerta_enviada\":\"2026-06-30\"}",
+        "127.0.0.1",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0",
+        "2026-06-30 18:37:32"
+      ],
+      [
+        19,
+        1,
+        1,
+        "Administrador BYTSAC",
+        "updated",
+        "subscriptions",
+        "Suscripción #4 actualizada",
+        "App\\Models\\Subscription",
+        4,
+        "{\"estado\":\"activo\"}",
+        "{\"estado\":\"expirado\"}",
+        "127.0.0.1",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0",
+        "2026-06-30 18:37:32"
+      ],
+      [
+        20,
+        1,
+        1,
+        "Administrador BYTSAC",
+        "updated",
+        "subscriptions",
+        "Suscripción #6 actualizada",
+        "App\\Models\\Subscription",
+        6,
+        "{\"estado\":\"activo\"}",
+        "{\"estado\":\"expirado\"}",
+        "127.0.0.1",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0",
+        "2026-06-30 18:37:32"
+      ],
+      [
+        21,
+        1,
+        1,
+        "Administrador BYTSAC",
+        "updated",
+        "subscriptions",
+        "Suscripción #4 actualizada",
+        "App\\Models\\Subscription",
+        4,
+        "{\"seguimiento_7_enviado\":null}",
+        "{\"seguimiento_7_enviado\":\"2026-06-30\"}",
+        "127.0.0.1",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0",
+        "2026-06-30 18:37:32"
+      ],
+      [
+        22,
+        1,
+        1,
+        "Administrador BYTSAC",
+        "updated",
+        "subscriptions",
+        "Suscripción #6 actualizada",
+        "App\\Models\\Subscription",
+        6,
+        "{\"seguimiento_7_enviado\":null}",
+        "{\"seguimiento_7_enviado\":\"2026-06-30\"}",
+        "127.0.0.1",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0",
+        "2026-06-30 18:37:32"
+      ],
+      [
+        23,
+        1,
+        1,
+        "Administrador BYTSAC",
+        "login",
+        "auth",
+        "Inicio de sesión exitoso",
+        "App\\Models\\User",
+        1,
+        null,
+        null,
+        "127.0.0.1",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+        "2026-06-30 18:58:22"
+      ],
+      [
+        24,
+        1,
+        1,
+        "Administrador BYTSAC",
+        "toggle_auto_renew",
+        "subscriptions",
+        "Renovación automática desactivada en suscripción #1",
+        "App\\Models\\Subscription",
+        1,
+        "{\"renovacion_automatica\":true}",
+        "{\"renovacion_automatica\":false}",
+        "127.0.0.1",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+        "2026-06-30 20:03:27"
+      ],
+      [
+        25,
+        1,
+        null,
+        "Sistema",
+        "created",
+        "subscriptions",
+        "Suscripción #7 creada",
+        "App\\Models\\Subscription",
+        7,
+        null,
+        "{\"client_id\":1,\"plan_id\":1,\"fecha_inicio\":\"2026-07-10 00:00:00\",\"tenant_id\":1,\"user_id\":1,\"fecha_fin\":\"2026-08-09 00:00:00\",\"estado\":\"activo\",\"renovacion_automatica\":true,\"id\":7}",
+        "127.0.0.1",
+        "Symfony",
+        "2026-07-10 18:12:56"
+      ],
+      [
+        26,
+        1,
+        null,
+        "Sistema",
+        "created",
+        "subscriptions",
+        "Suscripción #8 creada",
+        "App\\Models\\Subscription",
+        8,
+        null,
+        "{\"client_id\":2,\"plan_id\":2,\"fecha_inicio\":\"2026-07-10 00:00:00\",\"tenant_id\":1,\"user_id\":1,\"fecha_fin\":\"2026-08-09 00:00:00\",\"estado\":\"activo\",\"renovacion_automatica\":true,\"id\":8}",
+        "127.0.0.1",
+        "Symfony",
+        "2026-07-10 18:12:56"
+      ],
+      [
+        27,
+        1,
+        null,
+        "Sistema",
+        "created",
+        "subscriptions",
+        "Suscripción #9 creada",
+        "App\\Models\\Subscription",
+        9,
+        null,
+        "{\"client_id\":1,\"plan_id\":1,\"fecha_inicio\":\"2026-06-13 00:00:00\",\"tenant_id\":1,\"user_id\":1,\"fecha_fin\":\"2026-07-13 18:12:56\",\"estado\":\"activo\",\"renovacion_automatica\":false,\"id\":9}",
+        "127.0.0.1",
+        "Symfony",
+        "2026-07-10 18:12:56"
+      ],
+      [
+        28,
+        1,
+        null,
+        "Sistema",
+        "created",
+        "subscriptions",
+        "Suscripción #10 creada",
+        "App\\Models\\Subscription",
+        10,
+        null,
+        "{\"client_id\":2,\"plan_id\":2,\"fecha_inicio\":\"2026-06-05 00:00:00\",\"tenant_id\":1,\"user_id\":1,\"fecha_fin\":\"2026-07-05 18:12:56\",\"estado\":\"activo\",\"renovacion_automatica\":false,\"id\":10}",
+        "127.0.0.1",
+        "Symfony",
+        "2026-07-10 18:12:56"
+      ],
+      [
+        29,
+        1,
+        1,
+        "Administrador BYTSAC",
+        "updated",
+        "subscriptions",
+        "Suscripción #9 actualizada",
+        "App\\Models\\Subscription",
+        9,
+        "{\"estado\":\"activo\"}",
+        "{\"estado\":\"por_vencer\"}",
+        "127.0.0.1",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0",
+        "2026-07-10 18:14:54"
+      ],
+      [
+        30,
+        1,
+        1,
+        "Administrador BYTSAC",
+        "updated",
+        "subscriptions",
+        "Suscripción #9 actualizada",
+        "App\\Models\\Subscription",
+        9,
+        "{\"ultima_alerta_enviada\":null}",
+        "{\"ultima_alerta_enviada\":\"2026-07-10\"}",
+        "127.0.0.1",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0",
+        "2026-07-10 18:14:54"
+      ],
+      [
+        31,
+        1,
+        1,
+        "Administrador BYTSAC",
+        "updated",
+        "subscriptions",
+        "Suscripción #10 actualizada",
+        "App\\Models\\Subscription",
+        10,
+        "{\"estado\":\"activo\"}",
+        "{\"estado\":\"expirado\"}",
+        "127.0.0.1",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0",
+        "2026-07-10 18:14:54"
+      ],
+      [
+        32,
+        1,
+        1,
+        "Administrador BYTSAC",
+        "updated",
+        "subscriptions",
+        "Suscripción #3 actualizada",
+        "App\\Models\\Subscription",
+        3,
+        "{\"estado\":\"por_vencer\"}",
+        "{\"estado\":\"expirado\"}",
+        "127.0.0.1",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0",
+        "2026-07-10 18:14:55"
+      ],
+      [
+        33,
+        1,
+        1,
+        "Administrador BYTSAC",
+        "updated",
+        "subscriptions",
+        "Suscripción #5 actualizada",
+        "App\\Models\\Subscription",
+        5,
+        "{\"estado\":\"por_vencer\"}",
+        "{\"estado\":\"expirado\"}",
+        "127.0.0.1",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0",
+        "2026-07-10 18:14:55"
+      ],
+      [
+        34,
+        1,
+        1,
+        "Administrador BYTSAC",
+        "updated",
+        "subscriptions",
+        "Suscripción #3 actualizada",
+        "App\\Models\\Subscription",
+        3,
+        "{\"seguimiento_7_enviado\":null}",
+        "{\"seguimiento_7_enviado\":\"2026-07-10\"}",
+        "127.0.0.1",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0",
+        "2026-07-10 18:14:55"
+      ],
+      [
+        35,
+        1,
+        1,
+        "Administrador BYTSAC",
+        "updated",
+        "subscriptions",
+        "Suscripción #5 actualizada",
+        "App\\Models\\Subscription",
+        5,
+        "{\"seguimiento_7_enviado\":null}",
+        "{\"seguimiento_7_enviado\":\"2026-07-10\"}",
+        "127.0.0.1",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0",
+        "2026-07-10 18:14:55"
+      ],
+      [
+        36,
+        1,
+        1,
+        "Administrador BYTSAC",
+        "updated",
+        "subscriptions",
+        "Suscripción #10 actualizada",
+        "App\\Models\\Subscription",
+        10,
+        "{\"seguimiento_7_enviado\":null}",
+        "{\"seguimiento_7_enviado\":\"2026-07-10\"}",
+        "127.0.0.1",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0",
+        "2026-07-10 18:14:55"
+      ],
+      [
+        37,
+        1,
+        1,
+        "Administrador BYTSAC",
+        "updated",
+        "subscriptions",
+        "Suscripción #4 actualizada",
+        "App\\Models\\Subscription",
+        4,
+        "{\"seguimiento_30_enviado\":null}",
+        "{\"seguimiento_30_enviado\":\"2026-07-10\"}",
+        "127.0.0.1",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0",
+        "2026-07-10 18:14:55"
+      ],
+      [
+        38,
+        1,
+        1,
+        "Administrador BYTSAC",
+        "updated",
+        "subscriptions",
+        "Suscripción #6 actualizada",
+        "App\\Models\\Subscription",
+        6,
+        "{\"seguimiento_30_enviado\":null}",
+        "{\"seguimiento_30_enviado\":\"2026-07-10\"}",
+        "127.0.0.1",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 OPR/132.0.0.0",
+        "2026-07-10 18:14:55"
+      ]
+    ]
+  },
+  "cache": {
+    "columns": [
+      "key",
+      "value",
+      "expiration"
+    ],
+    "rows": [
+      [
+        "laravel-cache-spatie.permission.cache",
+        "a:3:{s:5:\"alias\";a:4:{s:1:\"a\";s:2:\"id\";s:1:\"b\";s:4:\"name\";s:1:\"c\";s:10:\"guard_name\";s:1:\"r\";s:5:\"roles\";}s:11:\"permissions\";a:15:{i:0;a:4:{s:1:\"a\";i:1;s:1:\"b\";s:12:\"view clients\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:2;}}i:1;a:4:{s:1:\"a\";i:2;s:1:\"b\";s:14:\"create clients\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:2;}}i:2;a:4:{s:1:\"a\";i:3;s:1:\"b\";s:12:\"edit clients\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:2;}}i:3;a:4:{s:1:\"a\";i:4;s:1:\"b\";s:14:\"delete clients\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:4;a:4:{s:1:\"a\";i:5;s:1:\"b\";s:10:\"view plans\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:3:{i:0;i:1;i:1;i:2;i:2;i:3;}}i:5;a:4:{s:1:\"a\";i:6;s:1:\"b\";s:12:\"create plans\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:6;a:4:{s:1:\"a\";i:7;s:1:\"b\";s:10:\"edit plans\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:7;a:4:{s:1:\"a\";i:8;s:1:\"b\";s:12:\"delete plans\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:8;a:4:{s:1:\"a\";i:9;s:1:\"b\";s:18:\"view subscriptions\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:3:{i:0;i:1;i:1;i:2;i:2;i:3;}}i:9;a:4:{s:1:\"a\";i:10;s:1:\"b\";s:20:\"create subscriptions\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:2;}}i:10;a:4:{s:1:\"a\";i:11;s:1:\"b\";s:18:\"edit subscriptions\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:2;}}i:11;a:4:{s:1:\"a\";i:12;s:1:\"b\";s:20:\"delete subscriptions\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}i:12;a:4:{s:1:\"a\";i:13;s:1:\"b\";s:19:\"renew subscriptions\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:2:{i:0;i:1;i:1;i:2;}}i:13;a:4:{s:1:\"a\";i:14;s:1:\"b\";s:18:\"view notifications\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:3:{i:0;i:1;i:1;i:2;i:2;i:3;}}i:14;a:4:{s:1:\"a\";i:15;s:1:\"b\";s:18:\"view activity logs\";s:1:\"c\";s:3:\"web\";s:1:\"r\";a:1:{i:0;i:1;}}}s:5:\"roles\";a:3:{i:0;a:3:{s:1:\"a\";i:1;s:1:\"b\";s:13:\"administrador\";s:1:\"c\";s:3:\"web\";}i:1;a:3:{s:1:\"a\";i:2;s:1:\"b\";s:9:\"comercial\";s:1:\"c\";s:3:\"web\";}i:2;a:3:{s:1:\"a\";i:3;s:1:\"b\";s:7:\"cliente\";s:1:\"c\";s:3:\"web\";}}}",
+        1783811704
+      ]
+    ]
+  },
+  "clients": {
+    "columns": [
+      "id",
+      "tenant_id",
+      "razon_social",
+      "ruc",
+      "direccion",
+      "telefono",
+      "email",
+      "id_usuario_creador",
+      "estado",
+      "created_at",
+      "updated_at"
+    ],
+    "rows": [
+      [
+        1,
+        1,
+        "Cliente Test BYTSAC",
+        "20123456789",
+        "Av. Demo 123, Lima",
+        "999888777",
+        "cliente@test.com",
+        1,
+        "activo",
+        "2026-06-30 16:41:04",
+        "2026-06-30 16:41:04"
+      ],
+      [
+        2,
+        1,
+        "Empresa Demo SAC",
+        "20987654321",
+        "Jr. Principal 456, Lima",
+        "987654321",
+        "contacto@empresademo.com",
+        1,
+        "activo",
+        "2026-06-30 16:41:04",
+        "2026-06-30 16:41:04"
+      ]
+    ]
+  },
+  "migrations": {
+    "columns": [
+      "id",
+      "migration",
+      "batch"
+    ],
+    "rows": [
+      [
+        1,
+        "0001_01_01_000000_create_users_table",
+        1
+      ],
+      [
+        2,
+        "0001_01_01_000001_create_cache_table",
+        1
+      ],
+      [
+        3,
+        "0001_01_01_000002_create_jobs_table",
+        1
+      ],
+      [
+        4,
+        "2026_05_26_210254_create_personal_access_tokens_table",
+        1
+      ],
+      [
+        5,
+        "2026_05_26_210347_create_permission_tables",
+        1
+      ],
+      [
+        6,
+        "2026_05_26_220000_create_plans_table",
+        1
+      ],
+      [
+        7,
+        "2026_05_26_220001_create_clients_table",
+        1
+      ],
+      [
+        8,
+        "2026_06_02_000001_create_subscriptions_table",
+        1
+      ],
+      [
+        9,
+        "2026_06_02_000002_create_notifications_table",
+        1
+      ],
+      [
+        10,
+        "2026_06_14_112657_add_duracion_dias_to_plans_table",
+        1
+      ],
+      [
+        11,
+        "2026_06_14_120000_create_activity_logs_table",
+        1
+      ],
+      [
+        12,
+        "2026_06_15_083738_add_notification_tracking_to_subscriptions",
+        1
+      ],
+      [
+        13,
+        "2026_06_30_000000_add_notification_preferences_to_users_table",
+        2
+      ]
+    ]
+  },
+  "notifications": {
+    "columns": [
+      "id",
+      "type",
+      "notifiable_type",
+      "notifiable_id",
+      "data",
+      "read_at",
+      "created_at",
+      "updated_at"
+    ],
+    "rows": [
+      [
+        "1f542c3d-bd36-4404-ab4b-fbc40fb5b234",
+        "App\\Notifications\\AvisoComercial",
+        "App\\Models\\User",
+        1,
+        "{\"subscription_id\":3,\"client_id\":1,\"plan_id\":1,\"cliente\":\"Cliente Test BYTSAC\",\"plan\":\"Plan B\\u00e1sico\",\"fecha_fin\":\"2026-07-03\",\"dias_restantes\":2,\"tipo\":\"aviso_comercial\",\"email_cliente\":\"cliente@test.com\",\"telefono_cliente\":\"999888777\",\"mensaje\":\"Alerta comercial: La suscripci\\u00f3n de Cliente Test BYTSAC al plan Plan B\\u00e1sico vence el 03\\/07\\/2026. Contacta al cliente para renovaci\\u00f3n.\"}",
+        "2026-06-30 20:03:58",
+        "2026-06-30 18:37:32",
+        "2026-06-30 20:03:58"
+      ],
+      [
+        "1337d487-dd19-4a0b-9f75-837dd6477742",
+        "App\\Notifications\\AvisoComercial",
+        "App\\Models\\User",
+        2,
+        "{\"subscription_id\":3,\"client_id\":1,\"plan_id\":1,\"cliente\":\"Cliente Test BYTSAC\",\"plan\":\"Plan B\\u00e1sico\",\"fecha_fin\":\"2026-07-03\",\"dias_restantes\":2,\"tipo\":\"aviso_comercial\",\"email_cliente\":\"cliente@test.com\",\"telefono_cliente\":\"999888777\",\"mensaje\":\"Alerta comercial: La suscripci\\u00f3n de Cliente Test BYTSAC al plan Plan B\\u00e1sico vence el 03\\/07\\/2026. Contacta al cliente para renovaci\\u00f3n.\"}",
+        null,
+        "2026-06-30 18:37:32",
+        "2026-06-30 18:37:32"
+      ],
+      [
+        "550ae938-9831-4817-b43a-8866745dfbf7",
+        "App\\Notifications\\AvisoComercial",
+        "App\\Models\\User",
+        1,
+        "{\"subscription_id\":5,\"client_id\":1,\"plan_id\":1,\"cliente\":\"Cliente Test BYTSAC\",\"plan\":\"Plan B\\u00e1sico\",\"fecha_fin\":\"2026-07-03\",\"dias_restantes\":2,\"tipo\":\"aviso_comercial\",\"email_cliente\":\"cliente@test.com\",\"telefono_cliente\":\"999888777\",\"mensaje\":\"Alerta comercial: La suscripci\\u00f3n de Cliente Test BYTSAC al plan Plan B\\u00e1sico vence el 03\\/07\\/2026. Contacta al cliente para renovaci\\u00f3n.\"}",
+        null,
+        "2026-06-30 18:37:32",
+        "2026-06-30 18:37:32"
+      ],
+      [
+        "58ca6eb5-b43b-41e4-9672-512ccee05491",
+        "App\\Notifications\\AvisoComercial",
+        "App\\Models\\User",
+        2,
+        "{\"subscription_id\":5,\"client_id\":1,\"plan_id\":1,\"cliente\":\"Cliente Test BYTSAC\",\"plan\":\"Plan B\\u00e1sico\",\"fecha_fin\":\"2026-07-03\",\"dias_restantes\":2,\"tipo\":\"aviso_comercial\",\"email_cliente\":\"cliente@test.com\",\"telefono_cliente\":\"999888777\",\"mensaje\":\"Alerta comercial: La suscripci\\u00f3n de Cliente Test BYTSAC al plan Plan B\\u00e1sico vence el 03\\/07\\/2026. Contacta al cliente para renovaci\\u00f3n.\"}",
+        null,
+        "2026-06-30 18:37:32",
+        "2026-06-30 18:37:32"
+      ],
+      [
+        "c3490a27-a475-4c89-ad95-fc864bd49b9d",
+        "App\\Notifications\\SeguimientoVencimiento",
+        "App\\Models\\User",
+        1,
+        "{\"subscription_id\":4,\"client_id\":2,\"plan_id\":2,\"cliente\":\"Empresa Demo SAC\",\"plan\":\"Plan Profesional\",\"fecha_fin\":\"2026-06-25\",\"dias_vencido\":7,\"tipo\":\"seguimiento\",\"email_cliente\":\"contacto@empresademo.com\",\"telefono_cliente\":\"987654321\",\"mensaje\":\"Seguimiento: La suscripci\\u00f3n de Empresa Demo SAC venci\\u00f3 hace 7 d\\u00edas. Realiza acciones de recuperaci\\u00f3n.\"}",
+        null,
+        "2026-06-30 18:37:32",
+        "2026-06-30 18:37:32"
+      ],
+      [
+        "21e2da99-a4ff-493e-9f94-a63eadb95fb5",
+        "App\\Notifications\\SeguimientoVencimiento",
+        "App\\Models\\User",
+        2,
+        "{\"subscription_id\":4,\"client_id\":2,\"plan_id\":2,\"cliente\":\"Empresa Demo SAC\",\"plan\":\"Plan Profesional\",\"fecha_fin\":\"2026-06-25\",\"dias_vencido\":7,\"tipo\":\"seguimiento\",\"email_cliente\":\"contacto@empresademo.com\",\"telefono_cliente\":\"987654321\",\"mensaje\":\"Seguimiento: La suscripci\\u00f3n de Empresa Demo SAC venci\\u00f3 hace 7 d\\u00edas. Realiza acciones de recuperaci\\u00f3n.\"}",
+        null,
+        "2026-06-30 18:37:32",
+        "2026-06-30 18:37:32"
+      ],
+      [
+        "50f44cc0-cfd8-4d90-b148-4dc028bc7acd",
+        "App\\Notifications\\SeguimientoVencimiento",
+        "App\\Models\\User",
+        1,
+        "{\"subscription_id\":6,\"client_id\":2,\"plan_id\":2,\"cliente\":\"Empresa Demo SAC\",\"plan\":\"Plan Profesional\",\"fecha_fin\":\"2026-06-25\",\"dias_vencido\":7,\"tipo\":\"seguimiento\",\"email_cliente\":\"contacto@empresademo.com\",\"telefono_cliente\":\"987654321\",\"mensaje\":\"Seguimiento: La suscripci\\u00f3n de Empresa Demo SAC venci\\u00f3 hace 7 d\\u00edas. Realiza acciones de recuperaci\\u00f3n.\"}",
+        null,
+        "2026-06-30 18:37:32",
+        "2026-06-30 18:37:32"
+      ],
+      [
+        "8e666e7c-4cb3-4efe-9f27-5ebd2e39f663",
+        "App\\Notifications\\SeguimientoVencimiento",
+        "App\\Models\\User",
+        2,
+        "{\"subscription_id\":6,\"client_id\":2,\"plan_id\":2,\"cliente\":\"Empresa Demo SAC\",\"plan\":\"Plan Profesional\",\"fecha_fin\":\"2026-06-25\",\"dias_vencido\":7,\"tipo\":\"seguimiento\",\"email_cliente\":\"contacto@empresademo.com\",\"telefono_cliente\":\"987654321\",\"mensaje\":\"Seguimiento: La suscripci\\u00f3n de Empresa Demo SAC venci\\u00f3 hace 7 d\\u00edas. Realiza acciones de recuperaci\\u00f3n.\"}",
+        null,
+        "2026-06-30 18:37:32",
+        "2026-06-30 18:37:32"
+      ],
+      [
+        "a91d9176-423c-4171-9c1d-1d2880a99c81",
+        "App\\Notifications\\AvisoComercial",
+        "App\\Models\\User",
+        1,
+        "{\"subscription_id\":9,\"client_id\":1,\"plan_id\":1,\"cliente\":\"Cliente Test BYTSAC\",\"plan\":\"Plan B\\u00e1sico\",\"fecha_fin\":\"2026-07-13\",\"dias_restantes\":2,\"tipo\":\"aviso_comercial\",\"email_cliente\":\"cliente@test.com\",\"telefono_cliente\":\"999888777\",\"mensaje\":\"Alerta comercial: La suscripci\\u00f3n de Cliente Test BYTSAC al plan Plan B\\u00e1sico vence el 13\\/07\\/2026. Contacta al cliente para renovaci\\u00f3n.\"}",
+        null,
+        "2026-07-10 18:14:54",
+        "2026-07-10 18:14:54"
+      ],
+      [
+        "eb63edba-a81f-4314-aaa3-db94d900dce2",
+        "App\\Notifications\\AvisoComercial",
+        "App\\Models\\User",
+        2,
+        "{\"subscription_id\":9,\"client_id\":1,\"plan_id\":1,\"cliente\":\"Cliente Test BYTSAC\",\"plan\":\"Plan B\\u00e1sico\",\"fecha_fin\":\"2026-07-13\",\"dias_restantes\":2,\"tipo\":\"aviso_comercial\",\"email_cliente\":\"cliente@test.com\",\"telefono_cliente\":\"999888777\",\"mensaje\":\"Alerta comercial: La suscripci\\u00f3n de Cliente Test BYTSAC al plan Plan B\\u00e1sico vence el 13\\/07\\/2026. Contacta al cliente para renovaci\\u00f3n.\"}",
+        null,
+        "2026-07-10 18:14:54",
+        "2026-07-10 18:14:54"
+      ],
+      [
+        "4ffd1e03-775b-47ee-9c65-387d167ac5ad",
+        "App\\Notifications\\SeguimientoVencimiento",
+        "App\\Models\\User",
+        1,
+        "{\"subscription_id\":3,\"client_id\":1,\"plan_id\":1,\"cliente\":\"Cliente Test BYTSAC\",\"plan\":\"Plan B\\u00e1sico\",\"fecha_fin\":\"2026-07-03\",\"dias_vencido\":7,\"tipo\":\"seguimiento\",\"email_cliente\":\"cliente@test.com\",\"telefono_cliente\":\"999888777\",\"mensaje\":\"Seguimiento: La suscripci\\u00f3n de Cliente Test BYTSAC venci\\u00f3 hace 7 d\\u00edas. Realiza acciones de recuperaci\\u00f3n.\"}",
+        null,
+        "2026-07-10 18:14:55",
+        "2026-07-10 18:14:55"
+      ],
+      [
+        "b78c8e8d-f5d3-4acb-8103-69838d8ff0ea",
+        "App\\Notifications\\SeguimientoVencimiento",
+        "App\\Models\\User",
+        2,
+        "{\"subscription_id\":3,\"client_id\":1,\"plan_id\":1,\"cliente\":\"Cliente Test BYTSAC\",\"plan\":\"Plan B\\u00e1sico\",\"fecha_fin\":\"2026-07-03\",\"dias_vencido\":7,\"tipo\":\"seguimiento\",\"email_cliente\":\"cliente@test.com\",\"telefono_cliente\":\"999888777\",\"mensaje\":\"Seguimiento: La suscripci\\u00f3n de Cliente Test BYTSAC venci\\u00f3 hace 7 d\\u00edas. Realiza acciones de recuperaci\\u00f3n.\"}",
+        null,
+        "2026-07-10 18:14:55",
+        "2026-07-10 18:14:55"
+      ],
+      [
+        "8fc6b9ad-14f4-4106-96d4-6c04749e5e6b",
+        "App\\Notifications\\SeguimientoVencimiento",
+        "App\\Models\\User",
+        1,
+        "{\"subscription_id\":5,\"client_id\":1,\"plan_id\":1,\"cliente\":\"Cliente Test BYTSAC\",\"plan\":\"Plan B\\u00e1sico\",\"fecha_fin\":\"2026-07-03\",\"dias_vencido\":7,\"tipo\":\"seguimiento\",\"email_cliente\":\"cliente@test.com\",\"telefono_cliente\":\"999888777\",\"mensaje\":\"Seguimiento: La suscripci\\u00f3n de Cliente Test BYTSAC venci\\u00f3 hace 7 d\\u00edas. Realiza acciones de recuperaci\\u00f3n.\"}",
+        null,
+        "2026-07-10 18:14:55",
+        "2026-07-10 18:14:55"
+      ],
+      [
+        "08b5ea2d-b455-4c41-aff4-22f92ba046da",
+        "App\\Notifications\\SeguimientoVencimiento",
+        "App\\Models\\User",
+        2,
+        "{\"subscription_id\":5,\"client_id\":1,\"plan_id\":1,\"cliente\":\"Cliente Test BYTSAC\",\"plan\":\"Plan B\\u00e1sico\",\"fecha_fin\":\"2026-07-03\",\"dias_vencido\":7,\"tipo\":\"seguimiento\",\"email_cliente\":\"cliente@test.com\",\"telefono_cliente\":\"999888777\",\"mensaje\":\"Seguimiento: La suscripci\\u00f3n de Cliente Test BYTSAC venci\\u00f3 hace 7 d\\u00edas. Realiza acciones de recuperaci\\u00f3n.\"}",
+        null,
+        "2026-07-10 18:14:55",
+        "2026-07-10 18:14:55"
+      ],
+      [
+        "59467242-2402-4ae5-8a53-e01d7aeef7d2",
+        "App\\Notifications\\SeguimientoVencimiento",
+        "App\\Models\\User",
+        1,
+        "{\"subscription_id\":10,\"client_id\":2,\"plan_id\":2,\"cliente\":\"Empresa Demo SAC\",\"plan\":\"Plan Profesional\",\"fecha_fin\":\"2026-07-05\",\"dias_vencido\":7,\"tipo\":\"seguimiento\",\"email_cliente\":\"contacto@empresademo.com\",\"telefono_cliente\":\"987654321\",\"mensaje\":\"Seguimiento: La suscripci\\u00f3n de Empresa Demo SAC venci\\u00f3 hace 7 d\\u00edas. Realiza acciones de recuperaci\\u00f3n.\"}",
+        null,
+        "2026-07-10 18:14:55",
+        "2026-07-10 18:14:55"
+      ],
+      [
+        "8825da5a-41bc-44cc-b29b-3bb37a4c399d",
+        "App\\Notifications\\SeguimientoVencimiento",
+        "App\\Models\\User",
+        2,
+        "{\"subscription_id\":10,\"client_id\":2,\"plan_id\":2,\"cliente\":\"Empresa Demo SAC\",\"plan\":\"Plan Profesional\",\"fecha_fin\":\"2026-07-05\",\"dias_vencido\":7,\"tipo\":\"seguimiento\",\"email_cliente\":\"contacto@empresademo.com\",\"telefono_cliente\":\"987654321\",\"mensaje\":\"Seguimiento: La suscripci\\u00f3n de Empresa Demo SAC venci\\u00f3 hace 7 d\\u00edas. Realiza acciones de recuperaci\\u00f3n.\"}",
+        null,
+        "2026-07-10 18:14:55",
+        "2026-07-10 18:14:55"
+      ],
+      [
+        "b99e583c-3c33-430f-8599-d0ab7649e3a3",
+        "App\\Notifications\\SeguimientoVencimiento",
+        "App\\Models\\User",
+        1,
+        "{\"subscription_id\":4,\"client_id\":2,\"plan_id\":2,\"cliente\":\"Empresa Demo SAC\",\"plan\":\"Plan Profesional\",\"fecha_fin\":\"2026-06-25\",\"dias_vencido\":30,\"tipo\":\"seguimiento\",\"email_cliente\":\"contacto@empresademo.com\",\"telefono_cliente\":\"987654321\",\"mensaje\":\"Seguimiento: La suscripci\\u00f3n de Empresa Demo SAC venci\\u00f3 hace 30 d\\u00edas. Realiza acciones de recuperaci\\u00f3n.\"}",
+        null,
+        "2026-07-10 18:14:55",
+        "2026-07-10 18:14:55"
+      ],
+      [
+        "f773b191-e5cc-45a8-8bf1-f58bb10b3906",
+        "App\\Notifications\\SeguimientoVencimiento",
+        "App\\Models\\User",
+        2,
+        "{\"subscription_id\":4,\"client_id\":2,\"plan_id\":2,\"cliente\":\"Empresa Demo SAC\",\"plan\":\"Plan Profesional\",\"fecha_fin\":\"2026-06-25\",\"dias_vencido\":30,\"tipo\":\"seguimiento\",\"email_cliente\":\"contacto@empresademo.com\",\"telefono_cliente\":\"987654321\",\"mensaje\":\"Seguimiento: La suscripci\\u00f3n de Empresa Demo SAC venci\\u00f3 hace 30 d\\u00edas. Realiza acciones de recuperaci\\u00f3n.\"}",
+        null,
+        "2026-07-10 18:14:55",
+        "2026-07-10 18:14:55"
+      ],
+      [
+        "1f124224-3f27-4ca9-9e78-ece13c51be46",
+        "App\\Notifications\\SeguimientoVencimiento",
+        "App\\Models\\User",
+        1,
+        "{\"subscription_id\":6,\"client_id\":2,\"plan_id\":2,\"cliente\":\"Empresa Demo SAC\",\"plan\":\"Plan Profesional\",\"fecha_fin\":\"2026-06-25\",\"dias_vencido\":30,\"tipo\":\"seguimiento\",\"email_cliente\":\"contacto@empresademo.com\",\"telefono_cliente\":\"987654321\",\"mensaje\":\"Seguimiento: La suscripci\\u00f3n de Empresa Demo SAC venci\\u00f3 hace 30 d\\u00edas. Realiza acciones de recuperaci\\u00f3n.\"}",
+        null,
+        "2026-07-10 18:14:55",
+        "2026-07-10 18:14:55"
+      ],
+      [
+        "6d0a72a1-51ce-48e4-8dc6-d7dae6635f88",
+        "App\\Notifications\\SeguimientoVencimiento",
+        "App\\Models\\User",
+        2,
+        "{\"subscription_id\":6,\"client_id\":2,\"plan_id\":2,\"cliente\":\"Empresa Demo SAC\",\"plan\":\"Plan Profesional\",\"fecha_fin\":\"2026-06-25\",\"dias_vencido\":30,\"tipo\":\"seguimiento\",\"email_cliente\":\"contacto@empresademo.com\",\"telefono_cliente\":\"987654321\",\"mensaje\":\"Seguimiento: La suscripci\\u00f3n de Empresa Demo SAC venci\\u00f3 hace 30 d\\u00edas. Realiza acciones de recuperaci\\u00f3n.\"}",
+        null,
+        "2026-07-10 18:14:55",
+        "2026-07-10 18:14:55"
+      ]
+    ]
+  },
+  "personal_access_tokens": {
+    "columns": [
+      "id",
+      "tokenable_type",
+      "tokenable_id",
+      "name",
+      "token",
+      "abilities",
+      "last_used_at",
+      "expires_at",
+      "created_at",
+      "updated_at"
+    ],
+    "rows": [
+      [
+        1,
+        "App\\Models\\User",
+        1,
+        "api-token",
+        "01cfea3c086d7c64ee629c4b3eddd8864e5abe6ba9d8980a08338f5e3a36284f",
+        "[\"*\"]",
+        "2026-07-10 18:29:03",
+        null,
+        "2026-06-30 18:26:48",
+        "2026-07-10 18:29:03"
+      ],
+      [
+        2,
+        "App\\Models\\User",
+        1,
+        "api-token",
+        "1ca46a609050339a5913a867e239bfdff2af5153a0ad8979b60c548e34c2b25b",
+        "[\"*\"]",
+        "2026-06-30 22:41:14",
+        null,
+        "2026-06-30 18:58:22",
+        "2026-06-30 22:41:14"
+      ]
+    ]
+  },
+  "plans": {
+    "columns": [
+      "id",
+      "tenant_id",
+      "nombre",
+      "descripcion",
+      "precio_mensual",
+      "precio_anual",
+      "control_ventas_stock",
+      "max_usuarios",
+      "nivel_reportes",
+      "activo",
+      "created_at",
+      "updated_at",
+      "duracion_dias"
+    ],
+    "rows": [
+      [
+        1,
+        1,
+        "Plan Básico",
+        "Plan ideal para pequeños negocios",
+        99,
+        990,
+        0,
+        5,
+        "basico",
+        1,
+        "2026-06-30 16:41:03",
+        "2026-06-30 16:41:03",
+        30
+      ],
+      [
+        2,
+        1,
+        "Plan Profesional",
+        "Plan con control de stock y reportes avanzados",
+        199,
+        1990,
+        1,
+        15,
+        "avanzado",
+        1,
+        "2026-06-30 16:41:04",
+        "2026-06-30 16:41:04",
+        30
+      ],
+      [
+        3,
+        1,
+        "Plan Enterprise",
+        "Solución completa con todas las funcionalidades",
+        399,
+        3990,
+        1,
+        50,
+        "premium",
+        1,
+        "2026-06-30 16:41:04",
+        "2026-06-30 16:41:04",
+        30
+      ]
+    ]
+  },
+  "model_has_permissions": {
+    "columns": [],
+    "rows": []
+  },
+  "model_has_roles": {
+    "columns": [
+      "role_id",
+      "model_type",
+      "model_id"
+    ],
+    "rows": [
+      [
+        1,
+        "App\\Models\\User",
+        1
+      ],
+      [
+        2,
+        "App\\Models\\User",
+        2
+      ],
+      [
+        3,
+        "App\\Models\\User",
+        3
+      ]
+    ]
+  },
+  "permissions": {
+    "columns": [
+      "id",
+      "name",
+      "guard_name",
+      "created_at",
+      "updated_at"
+    ],
+    "rows": [
+      [
+        1,
+        "view clients",
+        "web",
+        "2026-06-30 16:40:59",
+        "2026-06-30 16:40:59"
+      ],
+      [
+        2,
+        "create clients",
+        "web",
+        "2026-06-30 16:41:00",
+        "2026-06-30 16:41:00"
+      ],
+      [
+        3,
+        "edit clients",
+        "web",
+        "2026-06-30 16:41:00",
+        "2026-06-30 16:41:00"
+      ],
+      [
+        4,
+        "delete clients",
+        "web",
+        "2026-06-30 16:41:00",
+        "2026-06-30 16:41:00"
+      ],
+      [
+        5,
+        "view plans",
+        "web",
+        "2026-06-30 16:41:00",
+        "2026-06-30 16:41:00"
+      ],
+      [
+        6,
+        "create plans",
+        "web",
+        "2026-06-30 16:41:00",
+        "2026-06-30 16:41:00"
+      ],
+      [
+        7,
+        "edit plans",
+        "web",
+        "2026-06-30 16:41:00",
+        "2026-06-30 16:41:00"
+      ],
+      [
+        8,
+        "delete plans",
+        "web",
+        "2026-06-30 16:41:00",
+        "2026-06-30 16:41:00"
+      ],
+      [
+        9,
+        "view subscriptions",
+        "web",
+        "2026-06-30 16:41:00",
+        "2026-06-30 16:41:00"
+      ],
+      [
+        10,
+        "create subscriptions",
+        "web",
+        "2026-06-30 16:41:00",
+        "2026-06-30 16:41:00"
+      ],
+      [
+        11,
+        "edit subscriptions",
+        "web",
+        "2026-06-30 16:41:00",
+        "2026-06-30 16:41:00"
+      ],
+      [
+        12,
+        "delete subscriptions",
+        "web",
+        "2026-06-30 16:41:00",
+        "2026-06-30 16:41:00"
+      ],
+      [
+        13,
+        "renew subscriptions",
+        "web",
+        "2026-06-30 16:41:00",
+        "2026-06-30 16:41:00"
+      ],
+      [
+        14,
+        "view notifications",
+        "web",
+        "2026-06-30 16:41:00",
+        "2026-06-30 16:41:00"
+      ],
+      [
+        15,
+        "view activity logs",
+        "web",
+        "2026-06-30 16:41:00",
+        "2026-06-30 16:41:00"
+      ]
+    ]
+  },
+  "role_has_permissions": {
+    "columns": [
+      "permission_id",
+      "role_id"
+    ],
+    "rows": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        5,
+        1
+      ],
+      [
+        6,
+        1
+      ],
+      [
+        7,
+        1
+      ],
+      [
+        8,
+        1
+      ],
+      [
+        9,
+        1
+      ],
+      [
+        10,
+        1
+      ],
+      [
+        11,
+        1
+      ],
+      [
+        12,
+        1
+      ],
+      [
+        13,
+        1
+      ],
+      [
+        14,
+        1
+      ],
+      [
+        15,
+        1
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        5,
+        2
+      ],
+      [
+        9,
+        2
+      ],
+      [
+        10,
+        2
+      ],
+      [
+        11,
+        2
+      ],
+      [
+        13,
+        2
+      ],
+      [
+        14,
+        2
+      ],
+      [
+        5,
+        3
+      ],
+      [
+        9,
+        3
+      ],
+      [
+        14,
+        3
+      ]
+    ]
+  },
+  "roles": {
+    "columns": [
+      "id",
+      "name",
+      "guard_name",
+      "created_at",
+      "updated_at"
+    ],
+    "rows": [
+      [
+        1,
+        "administrador",
+        "web",
+        "2026-06-30 16:40:59",
+        "2026-06-30 16:40:59"
+      ],
+      [
+        2,
+        "comercial",
+        "web",
+        "2026-06-30 16:40:59",
+        "2026-06-30 16:40:59"
+      ],
+      [
+        3,
+        "cliente",
+        "web",
+        "2026-06-30 16:40:59",
+        "2026-06-30 16:40:59"
+      ]
+    ]
+  },
+  "sessions": {
+    "columns": [
+      "id",
+      "user_id",
+      "ip_address",
+      "user_agent",
+      "payload",
+      "last_activity"
+    ],
+    "rows": [
+      [
+        "VNyqYvsi7ASBmrGxVvdXwHWXcmbjauBZ6iaBQUCh",
+        null,
+        "127.0.0.1",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.126.0 Chrome/148.0.7778.97 Electron/42.2.0 Safari/537.36",
+        "eyJfdG9rZW4iOiJiSG9tc2xTTWt2VFdNZ21YSW9tTEZRTWJydWhmV0tvVEI2aVJWZXFiIiwiX3ByZXZpb3VzIjp7InVybCI6Imh0dHA6XC9cLzEyNy4wLjAuMTo4MDAwIiwicm91dGUiOm51bGx9LCJfZmxhc2giOnsib2xkIjpbXSwibmV3IjpbXX19",
+        1782861998
+      ],
+      [
+        "QSAHPnD1l8NX6HFYShsnyuXFwJ24kJAt92teCKbh",
+        null,
+        "127.0.0.1",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.128.0 Chrome/148.0.7778.271 Electron/42.5.0 Safari/537.36",
+        "eyJfdG9rZW4iOiIwaEJ2RExIMWtvRlNLVHZkVkV5c2d0WDVZM3lrVTJ3MTZHMk5TM2x0IiwiX3ByZXZpb3VzIjp7InVybCI6Imh0dHA6XC9cLzEyNy4wLjAuMTo4MDAwIiwicm91dGUiOm51bGx9LCJfZmxhc2giOnsib2xkIjpbXSwibmV3IjpbXX19",
+        1783725238
+      ]
+    ]
+  },
+  "subscriptions": {
+    "columns": [
+      "id",
+      "client_id",
+      "plan_id",
+      "user_id",
+      "fecha_inicio",
+      "fecha_fin",
+      "estado",
+      "renovacion_automatica",
+      "tenant_id",
+      "created_at",
+      "updated_at",
+      "ultima_alerta_enviada",
+      "seguimiento_7_enviado",
+      "seguimiento_30_enviado"
+    ],
+    "rows": [
+      [
+        1,
+        1,
+        1,
+        1,
+        "2026-06-30 00:00:00",
+        "2026-07-30 00:00:00",
+        "activo",
+        0,
+        1,
+        "2026-06-30 16:41:04",
+        "2026-06-30 20:03:27",
+        null,
+        null,
+        null
+      ],
+      [
+        2,
+        2,
+        2,
+        1,
+        "2026-06-30 00:00:00",
+        "2026-07-30 00:00:00",
+        "activo",
+        1,
+        1,
+        "2026-06-30 16:41:04",
+        "2026-06-30 16:41:04",
+        null,
+        null,
+        null
+      ],
+      [
+        3,
+        1,
+        1,
+        1,
+        "2026-06-03 16:41:04",
+        "2026-07-03 16:41:04",
+        "expirado",
+        0,
+        1,
+        "2026-06-30 16:41:04",
+        "2026-07-10 18:14:55",
+        "2026-06-30",
+        "2026-07-10",
+        null
+      ],
+      [
+        4,
+        2,
+        2,
+        1,
+        "2026-05-26 16:41:04",
+        "2026-06-25 16:41:04",
+        "expirado",
+        0,
+        1,
+        "2026-06-30 16:41:04",
+        "2026-07-10 18:14:55",
+        null,
+        "2026-06-30",
+        "2026-07-10"
+      ],
+      [
+        5,
+        1,
+        1,
+        1,
+        "2026-06-03 00:00:00",
+        "2026-07-03 18:21:59",
+        "expirado",
+        0,
+        1,
+        "2026-06-30 18:14:48",
+        "2026-07-10 18:14:55",
+        "2026-06-30",
+        "2026-07-10",
+        null
+      ],
+      [
+        6,
+        2,
+        2,
+        1,
+        "2026-05-26 00:00:00",
+        "2026-06-25 18:21:59",
+        "expirado",
+        0,
+        1,
+        "2026-06-30 18:14:49",
+        "2026-07-10 18:14:55",
+        null,
+        "2026-06-30",
+        "2026-07-10"
+      ],
+      [
+        7,
+        1,
+        1,
+        1,
+        "2026-07-10 00:00:00",
+        "2026-08-09 00:00:00",
+        "activo",
+        1,
+        1,
+        "2026-07-10 18:12:56",
+        "2026-07-10 18:12:56",
+        null,
+        null,
+        null
+      ],
+      [
+        8,
+        2,
+        2,
+        1,
+        "2026-07-10 00:00:00",
+        "2026-08-09 00:00:00",
+        "activo",
+        1,
+        1,
+        "2026-07-10 18:12:56",
+        "2026-07-10 18:12:56",
+        null,
+        null,
+        null
+      ],
+      [
+        9,
+        1,
+        1,
+        1,
+        "2026-06-13 00:00:00",
+        "2026-07-13 18:12:56",
+        "por_vencer",
+        0,
+        1,
+        "2026-07-10 18:12:56",
+        "2026-07-10 18:14:54",
+        "2026-07-10",
+        null,
+        null
+      ],
+      [
+        10,
+        2,
+        2,
+        1,
+        "2026-06-05 00:00:00",
+        "2026-07-05 18:12:56",
+        "expirado",
+        0,
+        1,
+        "2026-07-10 18:12:56",
+        "2026-07-10 18:14:55",
+        null,
+        "2026-07-10",
+        null
+      ]
+    ]
+  },
+  "users": {
+    "columns": [
+      "id",
+      "tenant_id",
+      "name",
+      "email",
+      "email_verified_at",
+      "password",
+      "remember_token",
+      "created_at",
+      "updated_at",
+      "notification_preferences"
+    ],
+    "rows": [
+      [
+        1,
+        1,
+        "Administrador BYTSAC",
+        "admin@bytsac.pe",
+        null,
+        "$2y$12$lMdIRkt5ylwbzYGWZJ2PmeK9HVsFvGd9MJfmWoVhRrPyPdAcqrCHG",
+        null,
+        "2026-06-30 16:41:03",
+        "2026-06-30 16:41:03",
+        null
+      ],
+      [
+        2,
+        1,
+        "Usuario Comercial",
+        "comercial@bytsac.pe",
+        null,
+        "$2y$12$wqraD3Q7gVLiXSmU2NE4pei2HugniQPnQi7rmFKU9ConJQkd7NGsy",
+        null,
+        "2026-06-30 16:41:03",
+        "2026-06-30 16:41:03",
+        null
+      ],
+      [
+        3,
+        1,
+        "Usuario Cliente",
+        "cliente@bytsac.pe",
+        null,
+        "$2y$12$rb902dSolccHOJlM9PWzoeC4dAViHBieoz.kHCkJOUlfTX3Z0Fe0K",
+        null,
+        "2026-06-30 16:41:03",
+        "2026-06-30 16:41:03",
+        null
+      ]
+    ]
+  }
+}
